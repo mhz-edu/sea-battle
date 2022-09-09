@@ -5,8 +5,10 @@ const size = 3
 const playerShoot = (x, y, field) => {
     if (field[x][y].innerText === 'S') {
         field[x][y].innerText = 'H'
+        field[x][y].classList.add('hit')
     } else {
         field[x][y].innerText = 'M'
+        field[x][y].classList.add('miss')
     }
     const event = new Event('playerShoot')
     document.dispatchEvent(event)
@@ -21,8 +23,10 @@ const botShoot = (field) => {
 
     if (field[x][y].innerText === 'S') {
         field[x][y].innerText = 'H'
+        field[x][y].classList.add('hit')
     } else {
         field[x][y].innerText = 'M'
+        field[x][y].classList.add('miss')
     }
     const event = new Event('botShoot')
     document.dispatchEvent(event)
@@ -61,6 +65,7 @@ const createBotField = (element) => {
         for (let j = 0; j< size; j++) {
             const cell = document.createElement('td')
             cell.innerText = 'E'
+            cell.classList.add('player')
             cell.setAttribute('data-value', `${i}${j}`)
             cell.addEventListener('click', (event)=>{
                 console.log(event.target.dataset.value);
@@ -96,7 +101,9 @@ const p2field = createBotField(container2);
 // Place ships
 
 p1field[1][1].innerText = 'S'
+p1field[0][0].innerText = 'S'
 p2field[2][2].innerText = 'S'
+p2field[0][2].innerText = 'S'
 
 const game = () => {
     document.addEventListener('playerShoot', ()=>{
