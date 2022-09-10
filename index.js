@@ -2,85 +2,85 @@ const size = 3
 
 // Shoot functions
 
-const playerShoot = (x, y, field) => {
-    if (field[x][y].innerText === 'S') {
-        field[x][y].innerText = 'H'
-        field[x][y].classList.add('hit')
-    } else {
-        field[x][y].innerText = 'M'
-        field[x][y].classList.add('miss')
-    }
+const playerShoot = (x, y) => {
+    const result = getHitMiss(x, y, botField)
+    botField[x][y] = (result === 'H' ? 'H' : 'M')
+    const cell = getElementByCoords(x, y, container2)
+    cell.innerText = (result === 'H' ? 'H' : 'M')
+    cell.classList.add(result === 'H' ? 'hit' : 'miss')
     const event = new Event('playerShoot')
     document.dispatchEvent(event)
 }
 
-const botShoot = (field) => {
+const botShoot = () => {
     let x, y;
     do {
         x = Math.floor(Math.random()*size)
         y = Math.floor(Math.random()*size)
-    } while (field[x][y].innerText === 'M' || field[x][y].innerText === 'H')
+    } while (ownField[x][y] === 'M' || ownField[x][y] === 'H')
 
-    if (field[x][y].innerText === 'S') {
-        field[x][y].innerText = 'H'
-        field[x][y].classList.add('hit')
-    } else {
-        field[x][y].innerText = 'M'
-        field[x][y].classList.add('miss')
-    }
+    const result = getHitMiss(x, y, ownField)
+    ownField[x][y] = (result === 'H' ? 'H' : 'M')
+    const cell = getElementByCoords(x, y, container1)
+    cell.innerText = (result === 'H' ? 'H' : 'M')
+    cell.classList.add(result === 'H' ? 'hit' : 'miss')
     const event = new Event('botShoot')
     document.dispatchEvent(event)
 }
 
 const checkFieldForShips = (field) => {
-    return field.flat().some((cell)=>cell.innerText === 'S')
+    return field.flat().some((cell)=>cell === 'S')
 }
 
-const createPlayerField = (element) => {
-    const field = []
+const displayOwnField = (field, element) => {
     const table = document.createElement('table');
     for (let i = 0; i< size; i++) {
-        const refrow = []
         const row = document.createElement('tr')
         for (let j = 0; j< size; j++) {
             const cell = document.createElement('td')
-            cell.innerText = 'E'
+            cell.innerText = field[j][i]
             row.appendChild(cell);
-            refrow.push(cell)
         }
         table.appendChild(row)
-        field.push(refrow)
     }
     
     element.appendChild(table)
-    return field
 }
 
-const createBotField = (element) => {
-    const field = []
+const displayEnemyField = (element) => {
     const table = document.createElement('table');
     for (let i = 0; i< size; i++) {
         const row = document.createElement('tr')
-        const refrow = []
         for (let j = 0; j< size; j++) {
             const cell = document.createElement('td')
-            cell.innerText = 'E'
+            cell.innerText = '?';
             cell.classList.add('player')
-            cell.setAttribute('data-value', `${i}${j}`)
+            cell.setAttribute('data-value', `${j}${i}`)
             cell.addEventListener('click', (event)=>{
                 console.log(event.target.dataset.value);
                 const [x, y] = event.target.dataset.value.split('');
-                playerShoot(parseInt(x), parseInt(y), p2field)
+                playerShoot(parseInt(x), parseInt(y))
             })
             row.appendChild(cell);
-            refrow.push(cell)
-
         }
         table.appendChild(row)
-        field.push(refrow)
     }
+    
     element.appendChild(table)
-    return field
+}
+
+const getElementByCoords = (x, y, root) => {
+    const rows = root.querySelectorAll('tr');
+    const cells = rows[y].querySelectorAll('td')
+    return cells[x]
+}
+
+const getHitMiss = (x, y, field) => {
+    if (field[x][y] === 'S') {
+        return 'H'
+    } else {
+        return 'M'
+    }
 }
 
 const showVictory = (winner, gameField, victoryContainer) => {
@@ -94,27 +94,28 @@ const container1 = document.querySelector('#player1-container')
 const container2 = document.querySelector('#player2-container')
 const victoryContainer = document.querySelector('#victory')
 
-const p1field = createPlayerField(container1);
-
-const p2field = createBotField(container2);
+const ownField = Array(size).fill(null).map(()=>Array(size).fill('E'))
+const botField = Array(size).fill(null).map(()=>Array(size).fill('E'))
 
 // Place ships
 
-p1field[1][1].innerText = 'S'
-p1field[0][0].innerText = 'S'
-p2field[2][2].innerText = 'S'
-p2field[0][2].innerText = 'S'
+ownField[1][1] = 'S'
+ownField[0][0] = 'S'
+botField[2][2] = 'S'
+botField[0][2] = 'S'
 
 const game = () => {
+    displayOwnField(ownField, container1);
+    displayEnemyField(container2)
     document.addEventListener('playerShoot', ()=>{
-        botShoot(p1field)
+        botShoot()
     })
     document.addEventListener('botShoot', ()=>{
-        if (checkFieldForShips(p1field) && checkFieldForShips(p2field)) {
+        if (checkFieldForShips(ownField) && checkFieldForShips(botField)) {
             console.log('next round')
         } else {
             let winner;
-            if (checkFieldForShips(p1field)) {
+            if (checkFieldForShips(ownField)) {
                 winner = 'Player';
             } else {
                 winner = 'Bot'
