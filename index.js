@@ -1,5 +1,67 @@
 const size = 3;
 
+class View {
+  constructor(model, rootElement, playerShootCallback) {
+    this.model = model;
+    this.root = rootElement;
+    this.playerShootCallback = playerShootCallback;
+  }
+
+  displayOwnField() {
+    const container1 = this.root.querySelector('#player1-container');
+    const table = document.createElement('table');
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('tr');
+      for (let j = 0; j < size; j++) {
+        const cell = document.createElement('td');
+        cell.innerText = this.model.ownField[j][i];
+        row.appendChild(cell);
+      }
+      table.appendChild(row);
+    }
+    container1.appendChild(table);
+  }
+
+  displayEnemyField() {
+    const container2 = this.root.querySelector('#player2-container');
+    const table1 = document.createElement('table');
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('tr');
+      for (let j = 0; j < size; j++) {
+        const cell = document.createElement('td');
+        cell.innerText = this.model.enemyField[j][i];
+        cell.classList.add('player');
+        cell.setAttribute('data-value', `${j}${i}`);
+        cell.addEventListener('click', (event) => {
+          console.log(event.target.dataset.value);
+          const [x, y] = event.target.dataset.value.split('');
+          this.playerShootCallback(parseInt(x), parseInt(y));
+        });
+        row.appendChild(cell);
+      }
+      table1.appendChild(row);
+    }
+    container2.appendChild(table1);
+  }
+
+  displayAll() {
+    this.displayOwnField();
+    this.displayEnemyField();
+  }
+
+  updateOwnField() {
+    const container1 = this.root.querySelector('#player1-container');
+    this.container1.remove();
+    this.displayOwnField();
+  }
+
+  updateEnemyField() {
+    const container1 = this.root.querySelector('#player2-container');
+    this.container1.remove();
+    this.displayEnemyField();
+  }
+}
+
 // Shoot functions
 
 const playerShoot = (x, y) => {
@@ -30,43 +92,6 @@ const botShoot = () => {
 
 const checkFieldForShips = (field) => {
   return field.flat().some((cell) => cell === 'S');
-};
-
-const displayOwnField = (field, element) => {
-  const table = document.createElement('table');
-  for (let i = 0; i < size; i++) {
-    const row = document.createElement('tr');
-    for (let j = 0; j < size; j++) {
-      const cell = document.createElement('td');
-      cell.innerText = field[j][i];
-      row.appendChild(cell);
-    }
-    table.appendChild(row);
-  }
-
-  element.appendChild(table);
-};
-
-const displayEnemyField = (element) => {
-  const table = document.createElement('table');
-  for (let i = 0; i < size; i++) {
-    const row = document.createElement('tr');
-    for (let j = 0; j < size; j++) {
-      const cell = document.createElement('td');
-      cell.innerText = '?';
-      cell.classList.add('player');
-      cell.setAttribute('data-value', `${j}${i}`);
-      cell.addEventListener('click', (event) => {
-        console.log(event.target.dataset.value);
-        const [x, y] = event.target.dataset.value.split('');
-        playerShoot(parseInt(x), parseInt(y));
-      });
-      row.appendChild(cell);
-    }
-    table.appendChild(row);
-  }
-
-  element.appendChild(table);
 };
 
 const getElementByCoords = (x, y, root) => {
@@ -109,8 +134,14 @@ botField[2][2] = 'S';
 botField[0][2] = 'S';
 
 const game = () => {
-  displayOwnField(ownField, container1);
-  displayEnemyField(container2);
+  const playerModel = {
+    ownField: ownField,
+    enemyField: Array(size)
+      .fill(null)
+      .map(() => Array(size).fill('?')),
+  };
+  const view = new View(playerModel, gameField, playerShoot);
+  view.displayAll();
   document.addEventListener('playerShoot', () => {
     botShoot();
   });
