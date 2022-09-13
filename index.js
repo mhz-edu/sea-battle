@@ -159,63 +159,93 @@ const botShoot = (model) => {
   return potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
 };
 
-const showVictory = (winner, gameField, victoryContainer) => {
-  gameField.classList.add('hide');
-  victoryContainer.classList.remove('hide');
-  victoryContainer.innerText = `${winner} Loses!`;
-};
-
-const gameField = document.querySelector('#game-field');
-const container1 = document.querySelector('#player1-container');
-const container2 = document.querySelector('#player2-container');
-const victoryContainer = document.querySelector('#victory');
+const app = document.querySelector('#app');
+let state = 'menu';
+let loser;
 
 const game = () => {
-  const playerModel = new Model();
-  const playerController = new Controller('player', playerModel);
-  const view = new View(playerModel, gameField, playerController);
+  if (state === 'menu') {
+    const menu = document.createElement('div');
+    menu.innerHTML = `
+    <button id="start">Start game</button>
+    `;
+    app.appendChild(menu);
+    const startButton = document.querySelector('#start');
+    startButton.addEventListener('click', () => {
+      while (app.firstChild) {
+        app.removeChild(app.firstChild);
+      }
+      const gameField = document.createElement('div');
+      gameField.setAttribute('id', 'game-field');
+      gameField.innerHTML = `
+        <div>Player field</div>
+        <div id="player1-container"></div>
+        <br>
+        <div>Bot field</div>
+        <div id="player2-container"></div>
+      `;
+      app.appendChild(gameField);
+      state = 'game';
+      game();
+    });
+  } else if (state === 'game') {
+    const gameField = document.querySelector('#game-field');
 
-  const botModel = new Model();
-  const botController = new Controller('bot', botModel);
+    const playerModel = new Model();
+    const playerController = new Controller('player', playerModel);
+    const view = new View(playerModel, gameField, playerController);
 
-  // Place ships
+    const botModel = new Model();
+    const botController = new Controller('bot', botModel);
 
-  playerModel.ownField[1][1] = 'S';
-  playerModel.ownField[0][0] = 'S';
-  botModel.ownField[2][2] = 'S';
-  botModel.ownField[0][2] = 'S';
+    // Place ships
 
-  view.displayAll();
-  document.addEventListener('shot', (event) => {
-    const { playerName, coords } = event.detail;
-    const { x, y } = coords;
-    if (playerName === 'bot') {
-      playerController.receiveShoot(x, y);
-    } else {
-      botController.receiveShoot(x, y);
+    playerModel.ownField[1][1] = 'S';
+    playerModel.ownField[0][0] = 'S';
+    botModel.ownField[2][2] = 'S';
+    botModel.ownField[0][2] = 'S';
+
+    view.displayAll();
+    document.addEventListener('shot', (event) => {
+      const { playerName, coords } = event.detail;
+      const { x, y } = coords;
+      if (playerName === 'bot') {
+        playerController.receiveShoot(x, y);
+      } else {
+        botController.receiveShoot(x, y);
+      }
+    });
+    document.addEventListener('shotResult', (event) => {
+      const { playerName, coords, result } = event.detail;
+      const { x, y } = coords;
+      if (playerName === 'bot') {
+        playerController.processShotFeedback(x, y, result);
+        const { x: botShotGuessX, y: botShotGuessY } = botShoot(botModel);
+        console.log('bot shot x', botShotGuessX, 'y', botShotGuessY);
+        botController.shoot(botShotGuessX, botShotGuessY);
+        view.updateOwnField();
+        view.updateEnemyField();
+      } else {
+        botController.processShotFeedback(x, y, result);
+        view.updateOwnField();
+        view.updateEnemyField();
+      }
+    });
+    document.addEventListener('gameComplete', (event) => {
+      const { playerName } = event.detail;
+      loser = playerName;
+      state = 'gameover';
+      game();
+    });
+  } else if (state === 'gameover') {
+    while (app.firstChild) {
+      app.removeChild(app.firstChild);
     }
-  });
-  document.addEventListener('shotResult', (event) => {
-    const { playerName, coords, result } = event.detail;
-    const { x, y } = coords;
-    if (playerName === 'bot') {
-      playerController.processShotFeedback(x, y, result);
-      const { x: botShotGuessX, y: botShotGuessY } = botShoot(botModel);
-      console.log('bot shot x', botShotGuessX, 'y', botShotGuessY);
-      botController.shoot(botShotGuessX, botShotGuessY);
-      view.updateOwnField();
-      view.updateEnemyField();
-    } else {
-      botController.processShotFeedback(x, y, result);
-      view.updateOwnField();
-      view.updateEnemyField();
-    }
-  });
-  document.addEventListener('gameComplete', (event) => {
-    console.log(event);
-    const { playerName } = event.detail;
-    showVictory(playerName, gameField, victoryContainer);
-  });
+    const victoryContainer = document.createElement('div');
+    victoryContainer.setAttribute('id', 'victory');
+    victoryContainer.innerText = `Game Over! ${loser} Loses!`;
+    app.appendChild(victoryContainer);
+  }
 };
 
 game();
