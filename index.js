@@ -32,11 +32,6 @@ class View {
         cell.innerText = this.model.enemyField[i][j];
         cell.classList.add('player');
         cell.setAttribute('data-value', `${j}${i}`);
-        cell.addEventListener('click', (event) => {
-          console.log(event.target.dataset.value);
-          const [x, y] = event.target.dataset.value.split('');
-          this.controller.shoot(parseInt(x), parseInt(y));
-        });
         row.appendChild(cell);
       }
       table1.appendChild(row);
@@ -59,6 +54,13 @@ class View {
     const field = this.root.querySelector('#player2-container table');
     field.remove();
     this.displayEnemyField();
+  }
+
+  notify(event) {
+    if (event.type === 'turnEnd') {
+      this.updateOwnField();
+      this.updateEnemyField();
+    }
   }
 }
 
@@ -94,9 +96,10 @@ class Model {
 }
 
 class Controller {
-  constructor(playerName, model, view) {
+  constructor(playerName, model, selectCell, view) {
     this.model = model;
     this.playerName = playerName;
+    this.selectCell = selectCell;
     if (view) {
       this.view = view;
     }
@@ -126,6 +129,15 @@ class Controller {
       },
     });
     document.dispatchEvent(event);
+
+    if (!this.model.checkField()) {
+      const event = new CustomEvent('noShips', {
+        detail: {
+          playerName: this.playerName,
+        },
+      });
+      document.dispatchEvent(event);
+    }
   }
 
   processShotFeedback(x, y, result) {
@@ -133,13 +145,94 @@ class Controller {
     if (this.view) {
       //   this.view.updateEnemyField();
     }
-    if (!this.model.checkField()) {
-      const event = new CustomEvent('gameComplete', {
-        detail: {
-          playerName: this.playerName,
-        },
+    const event = new CustomEvent('turnEnd', {
+      detail: {
+        playerName: this.playerName,
+      },
+    });
+    document.dispatchEvent(event);
+  }
+
+  async turn() {
+    const [x, y] = await this.selectCell();
+    console.log('selected', x, y);
+    this.shoot(x, y);
+  }
+
+  notify(incomingEvent) {
+    if (
+      incomingEvent.type === 'shot' &&
+      incomingEvent.detail.playerName !== this.playerName
+    ) {
+      const { playerName, coords } = incomingEvent.detail;
+      const { x, y } = coords;
+      this.receiveShoot(x, y);
+    } else if (
+      incomingEvent.type === 'shotResult' &&
+      incomingEvent.detail.playerName !== this.playerName
+    ) {
+      const { playerName, coords, result } = incomingEvent.detail;
+      const { x, y } = coords;
+      this.processShotFeedback(x, y, result);
+    }
+  }
+}
+
+class EventManager {
+  constructor() {
+    this.listeners = [];
+    this.events = ['start', 'shot', 'shotResult', 'turnEnd', 'noShips'];
+  }
+
+  addListener(listener) {
+    this.listeners.push(listener);
+  }
+
+  removeListener(listener) {
+    this.listeners = this.listeners.filter((item) => item !== listener);
+  }
+
+  initialize() {
+    console.log('initialize event mgr');
+    console.log('Listeners', this.listeners);
+    for (let event of this.events) {
+      document.addEventListener(event, (ev) => {
+        console.log(ev);
+        this.listeners.forEach((listener) => listener.notify(ev));
       });
-      document.dispatchEvent(event);
+    }
+  }
+}
+
+class GameLogic {
+  constructor(firstPlayer, secondPlayer) {
+    this.firstPlayer = firstPlayer;
+    this.secondPlayer = secondPlayer;
+    this.lastTurn = false;
+  }
+
+  notify(event) {
+    if (event.type === 'start') {
+      this.firstPlayer.turn();
+    } else if (event.type === 'turnEnd' && !this.lastTurn) {
+      if (event.detail.playerName === this.firstPlayer.playerName) {
+        this.secondPlayer.turn();
+      } else {
+        this.firstPlayer.turn();
+      }
+    } else if (event.type === 'noShips' && !this.lastTurn) {
+      this.lastTurn = true;
+      if (event.detail.playerName === this.firstPlayer.playerName) {
+        loser = this.firstPlayer.playerName;
+        this.secondPlayer.turn();
+      } else {
+        loser = this.secondPlayer.playerName;
+        this.firstPlayer.turn();
+      }
+    } else if (event.type === 'noShips' && this.lastTurn) {
+      loser = 'tie';
+    } else if (event.type === 'turnEnd' && this.lastTurn) {
+      document.dispatchEvent(new Event('gameover'));
     }
   }
 }
@@ -150,7 +243,7 @@ const botShoot = (model) => {
       if (!acc.hasOwnProperty(cur)) {
         acc[cur] = [];
       }
-      acc[cur].push({ x: index % size, y: Math.floor(index / size) });
+      acc[cur].push([index % size, Math.floor(index / size)]);
       return acc;
     }, {});
   };
@@ -171,7 +264,7 @@ const game = () => {
     `;
     app.appendChild(menu);
     const startButton = document.querySelector('#start');
-    startButton.addEventListener('click', () => {
+    startButton.addEventListener('click', (event) => {
       while (app.firstChild) {
         app.removeChild(app.firstChild);
       }
@@ -186,17 +279,31 @@ const game = () => {
       `;
       app.appendChild(gameField);
       state = 'game';
+      event.stopImmediatePropagation();
       game();
     });
   } else if (state === 'game') {
     const gameField = document.querySelector('#game-field');
 
     const playerModel = new Model();
-    const playerController = new Controller('player', playerModel);
+    const playerController = new Controller('player', playerModel, () => {
+      console.log('inside player select cell func');
+      return new Promise((resolve) => {
+        document.addEventListener('click', (ev) => {
+          console.log(ev);
+          resolve(ev.target.dataset.value.split(''));
+        });
+      });
+    });
     const view = new View(playerModel, gameField, playerController);
 
     const botModel = new Model();
-    const botController = new Controller('bot', botModel);
+    const botController = new Controller('bot', botModel, () => {
+      console.log('inside bot select cell');
+      return Promise.resolve(botShoot(botModel));
+    });
+
+    const logic = new GameLogic(botController, playerController);
 
     // Place ships
 
@@ -205,35 +312,17 @@ const game = () => {
     botModel.ownField[2][2] = 'S';
     botModel.ownField[0][2] = 'S';
 
+    const eventMgr = new EventManager();
+    eventMgr.addListener(playerController);
+    eventMgr.addListener(botController);
+    eventMgr.addListener(view);
+    eventMgr.addListener(logic);
+    eventMgr.initialize();
+
     view.displayAll();
-    document.addEventListener('shot', (event) => {
-      const { playerName, coords } = event.detail;
-      const { x, y } = coords;
-      if (playerName === 'bot') {
-        playerController.receiveShoot(x, y);
-      } else {
-        botController.receiveShoot(x, y);
-      }
-    });
-    document.addEventListener('shotResult', (event) => {
-      const { playerName, coords, result } = event.detail;
-      const { x, y } = coords;
-      if (playerName === 'bot') {
-        playerController.processShotFeedback(x, y, result);
-        const { x: botShotGuessX, y: botShotGuessY } = botShoot(botModel);
-        console.log('bot shot x', botShotGuessX, 'y', botShotGuessY);
-        botController.shoot(botShotGuessX, botShotGuessY);
-        view.updateOwnField();
-        view.updateEnemyField();
-      } else {
-        botController.processShotFeedback(x, y, result);
-        view.updateOwnField();
-        view.updateEnemyField();
-      }
-    });
-    document.addEventListener('gameComplete', (event) => {
-      const { playerName } = event.detail;
-      loser = playerName;
+
+    document.dispatchEvent(new Event('start'));
+    document.addEventListener('gameover', () => {
       state = 'gameover';
       game();
     });
