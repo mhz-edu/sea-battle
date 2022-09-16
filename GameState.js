@@ -11,10 +11,14 @@ class GameState {
     const playerController = new Controller('player', this.playerModel, () => {
       console.log('inside player select cell func');
       return new Promise((resolve) => {
-        document.addEventListener('click', (ev) => {
-          console.log(ev);
-          resolve(ev.target.dataset.value.split(''));
-        });
+        this.gameField.addEventListener(
+          'click',
+          (ev) => {
+            console.log(ev);
+            resolve(ev.target.dataset.value.split(''));
+          },
+          { once: true }
+        );
       });
     });
 
@@ -55,13 +59,17 @@ class GameState {
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
     document.dispatchEvent(new Event('start'));
-    document.addEventListener('gameover', (event) => {
-      const { outcome } = event.detail;
-      stateMachine.change('gameover', outcome);
-    });
+    document.addEventListener('gameover', this.gameoverHandler);
+  }
+
+  gameoverHandler(gameoverEvent) {
+    const { outcome } = gameoverEvent.detail;
+    stateMachine.change('gameover', outcome);
   }
 
   exit() {
+    document.removeEventListener('gameover', this.gameoverHandler);
+    this.eventMgr.destroy();
     this.app.removeChild(this.gameField);
   }
 
