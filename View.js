@@ -12,6 +12,7 @@ class View {
       for (let j = 0; j < size; j++) {
         const cell = document.createElement('td');
         cell.innerText = this.model.ownField[i][j];
+        cell.setAttribute('data-value', `${j}${i}`);
         row.appendChild(cell);
       }
       table.appendChild(row);

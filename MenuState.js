@@ -45,7 +45,7 @@ class MenuState {
     clickEvent.stopImmediatePropagation();
     const userSelect = clickEvent.target.dataset.value;
     if (userSelect === 'newGame') {
-      stateMachine.change('game');
+      stateMachine.change('ships');
     }
   }
 }

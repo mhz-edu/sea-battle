@@ -1,20 +1,26 @@
 class GameState {
   constructor(app) {
     this.app = app;
-    this.playerModel = new Model();
+    this.playerModel = null;
     this.eventMgr = new EventManager();
     this.gameField = document.createElement('div');
-    this.view = new View(this.playerModel, this.gameField);
+    this.view = null;
   }
 
-  enter() {
+  enter(params) {
+    this.playerModel = params;
+    this.view = new View(this.playerModel, this.gameField);
     const playerController = new Controller('player', this.playerModel, () => {
       console.log('inside player select cell func');
       return new Promise((resolve) => {
-        document.addEventListener('click', (ev) => {
-          console.log(ev);
-          resolve(ev.target.dataset.value.split(''));
-        });
+        this.gameField.addEventListener(
+          'click',
+          (ev) => {
+            console.log(ev);
+            resolve(ev.target.dataset.value.split(''));
+          },
+          { once: true }
+        );
       });
     });
 
@@ -44,8 +50,6 @@ class GameState {
 
     // Place ships
 
-    this.playerModel.ownField[1][1] = 'S';
-    this.playerModel.ownField[0][0] = 'S';
     botModel.ownField[2][2] = 'S';
     botModel.ownField[0][2] = 'S';
 
@@ -55,13 +59,17 @@ class GameState {
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
     document.dispatchEvent(new Event('start'));
-    document.addEventListener('gameover', (event) => {
-      const { outcome } = event.detail;
-      stateMachine.change('gameover', outcome);
-    });
+    document.addEventListener('gameover', this.gameoverHandler);
+  }
+
+  gameoverHandler(gameoverEvent) {
+    const { outcome } = gameoverEvent.detail;
+    stateMachine.change('gameover', outcome);
   }
 
   exit() {
+    document.removeEventListener('gameover', this.gameoverHandler);
+    this.eventMgr.destroy();
     this.app.removeChild(this.gameField);
   }
 
