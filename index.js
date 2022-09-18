@@ -4,6 +4,7 @@ const app = document.querySelector('#app');
 
 const stateMachine = new StateMachine({
   menu: () => new MenuState(app),
+  ships: () => new ShipPlaceState(app),
   game: () => new GameState(app),
   gameover: () => new GameOverState(app),
 });

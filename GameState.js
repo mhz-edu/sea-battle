@@ -1,13 +1,15 @@
 class GameState {
   constructor(app) {
     this.app = app;
-    this.playerModel = new Model();
+    this.playerModel = null;
     this.eventMgr = new EventManager();
     this.gameField = document.createElement('div');
-    this.view = new View(this.playerModel, this.gameField);
+    this.view = null;
   }
 
-  enter() {
+  enter(params) {
+    this.playerModel = params;
+    this.view = new View(this.playerModel, this.gameField);
     const playerController = new Controller('player', this.playerModel, () => {
       console.log('inside player select cell func');
       return new Promise((resolve) => {
@@ -48,8 +50,6 @@ class GameState {
 
     // Place ships
 
-    this.playerModel.ownField[1][1] = 'S';
-    this.playerModel.ownField[0][0] = 'S';
     botModel.ownField[2][2] = 'S';
     botModel.ownField[0][2] = 'S';
 

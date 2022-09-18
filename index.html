@@ -18,6 +18,27 @@
             .hit {
                 background-color: lightcoral;
             }
+            .ship-cell {
+                border: 1px solid;
+                height: 25px;
+                width: 25px;
+            }
+            .cell-select {
+                border-color: blue;
+                border-style: solid;
+                border-width: 3px;
+            }
+            .placement-allowed {
+                background-color: green;
+                opacity: 0.5;
+            }
+            .placement-forbidden {
+                background-color: red;
+                opacity: 0.5;
+            }
+            .horizontal {
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
@@ -31,6 +52,8 @@
         <script src="GameLogic.js"></script>
         <script src="StateMachine.js"></script>
         <script src="MenuState.js"></script>
+        <script src="ShipPlaceState.js"></script>
+        <script src="ShipStorage.js"></script>
         <script src="GameState.js"></script>
         <script src="GameOverState.js"></script>
         <script src="index.js"></script>
