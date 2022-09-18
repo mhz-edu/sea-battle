@@ -2,6 +2,7 @@ class View {
   constructor(model, rootElement) {
     this.model = model;
     this.root = rootElement;
+    this.statusLine = document.createElement('div');
   }
 
   displayOwnField() {
@@ -40,6 +41,7 @@ class View {
   displayAll() {
     this.displayOwnField();
     this.displayEnemyField();
+    this.root.appendChild(this.statusLine);
   }
 
   updateOwnField() {
@@ -55,7 +57,14 @@ class View {
   }
 
   notify(event) {
-    if (event.type === 'turnEnd') {
+    if (event.type === 'start') {
+      this.statusLine.innerText = 'Player 1 turn...';
+    } else if (event.type === 'turnEnd') {
+      if (event.detail.playerName === 'player') {
+        this.statusLine.innerText = 'Player 2 turn...';
+      } else {
+        this.statusLine.innerText = 'Player 1 turn...';
+      }
       this.updateOwnField();
       this.updateEnemyField();
     }

@@ -5,24 +5,39 @@ class GameState {
     this.eventMgr = new EventManager();
     this.gameField = document.createElement('div');
     this.view = null;
+    this.comm = null;
+    this.lastStateParams = null;
   }
 
   enter(params) {
-    this.playerModel = params;
+    this.lastStateParams = params;
+    this.playerModel = this.lastStateParams.playerModel;
+    this.comm = this.lastStateParams.commObj;
     this.view = new View(this.playerModel, this.gameField);
-    const playerController = new Controller('player', this.playerModel, () => {
-      console.log('inside player select cell func');
-      return new Promise((resolve) => {
-        this.gameField.addEventListener(
-          'click',
-          (ev) => {
-            console.log(ev);
-            resolve(ev.target.dataset.value.split(''));
-          },
-          { once: true }
-        );
-      });
-    });
+    const playerName =
+      this.lastStateParams.userRole === 'main' ? 'player' : 'player2';
+    const playerNameDiv = document.createElement('div');
+    playerNameDiv.innerText = `You are ${
+      this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2'
+    }`;
+    this.app.appendChild(playerNameDiv);
+    const playerController = new Controller(
+      playerName,
+      this.playerModel,
+      () => {
+        console.log('inside player select cell func');
+        return new Promise((resolve) => {
+          this.gameField.addEventListener(
+            'click',
+            (ev) => {
+              console.log(ev);
+              resolve(ev.target.dataset.value.split(''));
+            },
+            { once: true }
+          );
+        });
+      }
+    );
 
     const botModel = new Model();
     const botShoot = (model) => {
@@ -46,7 +61,15 @@ class GameState {
       return Promise.resolve(botShoot(botModel));
     });
 
-    const logic = new GameLogic(botController, playerController);
+    const netPlayerName =
+      this.lastStateParams.userRole === 'main' ? 'player2' : 'player';
+    const networkPlayerController = new networkPlayer(netPlayerName, this.comm);
+    let logic;
+    if (this.lastStateParams.userRole === 'main') {
+      logic = new GameLogic(playerController, networkPlayerController);
+    } else {
+      logic = new GameLogic(networkPlayerController, playerController);
+    }
 
     // Place ships
 
@@ -54,7 +77,7 @@ class GameState {
     botModel.ownField[0][2] = 'S';
 
     this.eventMgr.addListener(playerController);
-    this.eventMgr.addListener(botController);
+    this.eventMgr.addListener(networkPlayerController);
     this.eventMgr.addListener(this.view);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
@@ -76,10 +99,10 @@ class GameState {
   display() {
     this.gameField.setAttribute('id', 'game-field');
     this.gameField.innerHTML = `
-        <div>Player field</div>
+        <div>Your field</div>
         <div id="player1-container"></div>
         <br>
-        <div>Bot field</div>
+        <div>Enemy field</div>
         <div id="player2-container"></div>
       `;
     this.app.appendChild(this.gameField);
