@@ -4,7 +4,11 @@ class MenuState {
     this.menu = {
       screen: {
         title: 'Main menu',
-        options: [{ title: 'Start Game', id: 'newGame' }],
+        options: [
+          { title: 'Start Game', id: 'newGame' },
+          { title: 'Multiplayer - Start', id: 'multiStart' },
+          { title: 'Multiplayer - Connect', id: 'multiConn' },
+        ],
       },
     };
     this.menuElement = null;
@@ -45,7 +49,11 @@ class MenuState {
     clickEvent.stopImmediatePropagation();
     const userSelect = clickEvent.target.dataset.value;
     if (userSelect === 'newGame') {
-      stateMachine.change('ships');
+      stateMachine.change('ships', { gameType: 'single' });
+    } else if (userSelect === 'multiStart') {
+      stateMachine.change('ships', { userRole: 'main', gameType: 'multi' });
+    } else if (userSelect === 'multiConn') {
+      stateMachine.change('ships', { userRole: 'second', gameType: 'multi' });
     }
   }
 }

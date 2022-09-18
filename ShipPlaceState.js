@@ -7,9 +7,11 @@ class ShipPlaceState {
     this.initialShips = { 1: 2, 2: 1 };
     this.shipStorage = null;
     this.shipInDrag = null;
+    this.lastStateParams = null;
   }
 
-  enter() {
+  enter(params) {
+    this.lastStateParams = params;
     this.shipStorage = new ShipStorage(
       Object.assign({}, this.initialShips),
       this.dragStartHandler.bind(this),
@@ -43,7 +45,17 @@ class ShipPlaceState {
 
   placementCompleteHandler() {
     if (this.shipStorage.isStorageEmpty()) {
-      stateMachine.change('game', this.playerModel);
+      if (this.lastStateParams.gameType === 'single') {
+        stateMachine.change('game', {
+          playerModel: this.playerModel,
+          ...this.lastStateParams,
+        });
+      } else if (this.lastStateParams.gameType === 'multi') {
+        stateMachine.change('comms', {
+          playerModel: this.playerModel,
+          ...this.lastStateParams,
+        });
+      }
     } else {
       alert('Some ships are still need to be placed');
     }
