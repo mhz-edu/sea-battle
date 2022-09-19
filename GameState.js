@@ -14,70 +14,49 @@ class GameState {
     this.playerModel = this.lastStateParams.playerModel;
     this.comm = this.lastStateParams.commObj;
     this.view = new View(this.playerModel, this.gameField);
-    const playerName =
-      this.lastStateParams.userRole === 'main' ? 'player' : 'player2';
+
     const playerNameDiv = document.createElement('div');
     playerNameDiv.innerText = `You are ${
       this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2'
     }`;
     this.app.appendChild(playerNameDiv);
-    const playerController = new Controller(
-      playerName,
-      this.playerModel,
-      () => {
-        console.log('inside player select cell func');
-        return new Promise((resolve) => {
-          this.gameField.addEventListener(
-            'click',
-            (ev) => {
-              console.log(ev);
-              resolve(ev.target.dataset.value.split(''));
-            },
-            { once: true }
-          );
-        });
+
+    let firstPlayer, secondPlayer;
+    if (this.lastStateParams.gameType === 'single') {
+      const playerName = 'player';
+      firstPlayer = new Controller(
+        playerName,
+        this.playerModel,
+        this.playerSelectCell.bind(this)
+      );
+      const bot = new Bot();
+      secondPlayer = bot.botController;
+    } else if (this.lastStateParams.gameType === 'multi') {
+      if (this.lastStateParams.userRole === 'main') {
+        const playerName = 'player';
+        const netPlayerName = 'player2';
+        firstPlayer = new Controller(
+          playerName,
+          this.playerModel,
+          this.playerSelectCell.bind(this)
+        );
+        secondPlayer = new networkPlayer(netPlayerName, this.comm);
+      } else {
+        const playerName = 'player2';
+        const netPlayerName = 'player';
+        firstPlayer = new networkPlayer(netPlayerName, this.comm);
+        secondPlayer = new Controller(
+          playerName,
+          this.playerModel,
+          this.playerSelectCell.bind(this)
+        );
       }
-    );
-
-    const botModel = new Model();
-    const botShoot = (model) => {
-      const processEnemyField = (field) => {
-        return field.flat().reduce((acc, cur, index) => {
-          if (!acc.hasOwnProperty(cur)) {
-            acc[cur] = [];
-          }
-          acc[cur].push([index % size, Math.floor(index / size)]);
-          return acc;
-        }, {});
-      };
-      const enemyField = processEnemyField(model.enemyField);
-      const potentialTargets = enemyField['?'];
-      return potentialTargets[
-        Math.floor(Math.random() * potentialTargets.length)
-      ];
-    };
-    const botController = new Controller('bot', botModel, () => {
-      console.log('inside bot select cell');
-      return Promise.resolve(botShoot(botModel));
-    });
-
-    const netPlayerName =
-      this.lastStateParams.userRole === 'main' ? 'player2' : 'player';
-    const networkPlayerController = new networkPlayer(netPlayerName, this.comm);
-    let logic;
-    if (this.lastStateParams.userRole === 'main') {
-      logic = new GameLogic(playerController, networkPlayerController);
-    } else {
-      logic = new GameLogic(networkPlayerController, playerController);
     }
 
-    // Place ships
+    const logic = new GameLogic(firstPlayer, secondPlayer);
 
-    botModel.ownField[2][2] = 'S';
-    botModel.ownField[0][2] = 'S';
-
-    this.eventMgr.addListener(playerController);
-    this.eventMgr.addListener(networkPlayerController);
+    this.eventMgr.addListener(firstPlayer);
+    this.eventMgr.addListener(secondPlayer);
     this.eventMgr.addListener(this.view);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
@@ -108,5 +87,20 @@ class GameState {
     this.app.appendChild(this.gameField);
 
     this.view.displayAll();
+  }
+
+  playerSelectCell() {
+    console.log('inside player select cell func', this);
+    return new Promise((resolve) => {
+      console.log(this);
+      this.gameField.addEventListener(
+        'click',
+        (ev) => {
+          console.log(ev);
+          resolve(ev.target.dataset.value.split(''));
+        },
+        { once: true }
+      );
+    });
   }
 }

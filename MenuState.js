@@ -49,7 +49,7 @@ class MenuState {
     clickEvent.stopImmediatePropagation();
     const userSelect = clickEvent.target.dataset.value;
     if (userSelect === 'newGame') {
-      stateMachine.change('ships', { gameType: 'single' });
+      stateMachine.change('ships', { userRole: 'main', gameType: 'single' });
     } else if (userSelect === 'multiStart') {
       stateMachine.change('ships', { userRole: 'main', gameType: 'multi' });
     } else if (userSelect === 'multiConn') {
