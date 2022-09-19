@@ -23,25 +23,18 @@ class Controller {
         playerName: this.playerName,
         coords: { x, y },
         result,
+        noShips: !this.model.checkField(),
       },
     });
     document.dispatchEvent(event);
-
-    if (!this.model.checkField()) {
-      const event = new CustomEvent('noShips', {
-        detail: {
-          playerName: this.playerName,
-        },
-      });
-      document.dispatchEvent(event);
-    }
   }
 
-  processShotFeedback(x, y, result) {
+  processShotFeedback(x, y, result, noShips) {
     this.model.updateCell(x, y, result, 'enemy');
     const event = new CustomEvent('turnEnd', {
       detail: {
         playerName: this.playerName,
+        noShips,
       },
     });
     document.dispatchEvent(event);
@@ -65,9 +58,9 @@ class Controller {
       incomingEvent.type === 'shotResult' &&
       incomingEvent.detail.playerName !== this.playerName
     ) {
-      const { playerName, coords, result } = incomingEvent.detail;
+      const { playerName, coords, result, noShips } = incomingEvent.detail;
       const { x, y } = coords;
-      this.processShotFeedback(x, y, result);
+      this.processShotFeedback(x, y, result, noShips);
     }
   }
 }
