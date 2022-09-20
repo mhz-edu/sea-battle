@@ -21,6 +21,16 @@ class GameState {
     }`;
     this.app.appendChild(playerNameDiv);
 
+    this.gameField.setAttribute('id', 'game-field');
+    this.gameField.innerHTML = `
+        <div>Your field</div>
+        <div id="player1-container"></div>
+        <br>
+        <div>Enemy field</div>
+        <div id="player2-container"></div>
+      `;
+    this.app.appendChild(this.gameField);
+
     let firstPlayer, secondPlayer;
     if (this.lastStateParams.gameType === 'single') {
       const playerName = 'player';
@@ -60,6 +70,9 @@ class GameState {
     this.eventMgr.addListener(this.view);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
+
+    this.view.displayAll();
+
     document.dispatchEvent(new Event('start'));
     document.addEventListener('gameover', this.gameoverHandler);
   }
@@ -75,32 +88,24 @@ class GameState {
     this.app.removeChild(this.gameField);
   }
 
-  display() {
-    this.gameField.setAttribute('id', 'game-field');
-    this.gameField.innerHTML = `
-        <div>Your field</div>
-        <div id="player1-container"></div>
-        <br>
-        <div>Enemy field</div>
-        <div id="player2-container"></div>
-      `;
-    this.app.appendChild(this.gameField);
-
-    this.view.displayAll();
-  }
+  display() {}
 
   playerSelectCell() {
     console.log('inside player select cell func', this);
     return new Promise((resolve) => {
-      console.log(this);
-      this.gameField.addEventListener(
-        'click',
-        (ev) => {
-          console.log(ev);
-          resolve(ev.target.dataset.value.split(''));
-        },
-        { once: true }
-      );
+      const cells = this.gameField.querySelectorAll('.player');
+      cells.forEach((cell) => {
+        if (cell.innerText === '?') {
+          cell.addEventListener(
+            'click',
+            (ev) => {
+              console.log(ev);
+              resolve(ev.target.dataset.value.split(''));
+            },
+            { once: true }
+          );
+        }
+      });
     });
   }
 }
