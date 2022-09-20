@@ -1,6 +1,6 @@
 class Communication {
   constructor(connectionCallback) {
-    this.peer = new Peer(null, { debug: 3 });
+    this.peer = null;
     this.connection = null;
     this.peerId = null;
     this.connectionCallback = connectionCallback;
@@ -8,14 +8,22 @@ class Communication {
 
   async inititialize() {
     const open = new Promise((resolve, reject) => {
+      this.peer = new Peer(null, { debug: 3 });
       this.peer.on('open', (id) => {
         console.log('my id ', id);
         resolve(id);
       });
     });
     this.peerId = await open;
-    this.peer.on('connection', (c) => {
-      this.connection = c;
+    this.peer.on('connection', (newConnection) => {
+      if (this.connection) {
+        newConnection.on('open', () => {
+          newConnection.send('Game is already in progress');
+          newConnection.close();
+        });
+        return;
+      }
+      this.connection = newConnection;
       this.connection.on('data', this.dataHandler);
       this.connectionCallback();
     });
@@ -23,7 +31,7 @@ class Communication {
       console.log('disconnected');
     });
     this.peer.on('close', () => {
-      console.log('connection closed');
+      console.log('peer destoryed');
       this.connection = null;
     });
     this.peer.on('error', (err) => {
@@ -32,13 +40,32 @@ class Communication {
   }
 
   connect(id) {
-    this.connection = this.peer.connect(id, { serialization: 'json' });
-    this.connection.on('open', this.connectionCallback);
-    this.connection.on('data', this.dataHandler);
+    if (!this.connection) {
+      this.connection = this.peer.connect(id, { serialization: 'json' });
+      this.connection.on('open', () => {
+        //Wait if connection going to be closed
+        setTimeout(() => {
+          this.connectionCallback();
+        }, 500);
+      });
+      this.connection.on('data', this.dataHandler);
+      this.connection.on('close', () => {
+        this.connection = null;
+        console.log('connection was closed');
+      });
+    }
+  }
+
+  cancelConnection() {
+    if (this.connection) {
+      this.connection.close();
+    }
   }
 
   send(data) {
-    this.connection.send(data);
+    if (this.connection) {
+      this.connection.send(data);
+    }
   }
 
   dataHandler(data) {
