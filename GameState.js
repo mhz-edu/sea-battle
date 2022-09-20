@@ -88,8 +88,6 @@ class GameState {
     this.app.removeChild(this.gameField);
   }
 
-  display() {}
-
   playerSelectCell() {
     console.log('inside player select cell func', this);
     return new Promise((resolve) => {

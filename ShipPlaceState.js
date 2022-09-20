@@ -17,16 +17,10 @@ class ShipPlaceState {
       this.dragStartHandler.bind(this),
       this.dragEndHandler.bind(this)
     );
-  }
 
-  exit() {
-    this.app.removeChild(this.mainElement);
-  }
-
-  display() {
     this.mainElement.innerHTML = `
-        <div>Player field</div>
-        <div id="player1-container"></div>`;
+    <div>Player field</div>
+    <div id="player1-container"></div>`;
     this.app.appendChild(this.mainElement);
     this.view.displayOwnField();
     const resetBtn = document.createElement('button');
@@ -41,6 +35,10 @@ class ShipPlaceState {
     );
     this.mainElement.appendChild(completeBtn);
     this.shipStorage.display(this.mainElement);
+  }
+
+  exit() {
+    this.app.removeChild(this.mainElement);
   }
 
   placementCompleteHandler() {

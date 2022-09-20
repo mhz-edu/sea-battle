@@ -10,6 +10,5 @@ class StateMachine {
     this.current.exit();
     this.current = this.states[stateName]();
     this.current.enter(params);
-    this.current.display();
   }
 }

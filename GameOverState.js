@@ -16,13 +16,10 @@ class GameOverState {
       stateMachine.change('menu');
     });
     this.mainElement.appendChild(returnBtn);
+    this.app.appendChild(this.mainElement);
   }
 
   exit() {
     this.app.removeChild(this.mainElement);
-  }
-
-  display() {
-    this.app.appendChild(this.mainElement);
   }
 }

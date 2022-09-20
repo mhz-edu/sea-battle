@@ -50,8 +50,6 @@ class CommunicationScreenState {
     this.app.removeChild(this.mainElement);
   }
 
-  display() {}
-
   connectionCallBack() {
     const connDiv = document.createElement('div');
     const messageDiv = document.createElement('div');

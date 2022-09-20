@@ -18,14 +18,11 @@ class MenuState {
     if (!this.menuElement) {
       this.menuElement = this.generateMenu(this.menu);
     }
+    this.app.appendChild(this.menuElement);
   }
 
   exit() {
     this.app.removeChild(this.menuElement);
-  }
-
-  display() {
-    this.app.appendChild(this.menuElement);
   }
 
   generateMenu() {
