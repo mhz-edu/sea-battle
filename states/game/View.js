@@ -13,6 +13,11 @@ class View {
       for (let j = 0; j < size; j++) {
         const cell = document.createElement('td');
         cell.innerText = this.model.ownField[i][j];
+        if (this.model.ownField[i][j] === 'H') {
+          cell.classList.add('hit');
+        } else if (this.model.ownField[i][j] === 'M') {
+          cell.classList.add('miss');
+        }
         cell.setAttribute('data-value', `${j}${i}`);
         row.appendChild(cell);
       }
@@ -29,6 +34,11 @@ class View {
       for (let j = 0; j < size; j++) {
         const cell = document.createElement('td');
         cell.innerText = this.model.enemyField[i][j];
+        if (this.model.enemyField[i][j] === 'H') {
+          cell.classList.add('hit');
+        } else if (this.model.enemyField[i][j] === 'M') {
+          cell.classList.add('miss');
+        }
         cell.classList.add('player');
         cell.setAttribute('data-value', `${j}${i}`);
         row.appendChild(cell);
