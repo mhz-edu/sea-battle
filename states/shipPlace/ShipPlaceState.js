@@ -8,6 +8,7 @@ class ShipPlaceState {
     this.shipStorage = null;
     this.shipInDrag = null;
     this.lastStateParams = null;
+    this.dropHandlerRef = null;
   }
 
   enter(params) {
@@ -67,6 +68,7 @@ class ShipPlaceState {
     }
     this.view.updateOwnField();
     this.shipStorage.ships = Object.assign({}, this.initialShips);
+    this.shipStorage.orientation = 'h';
     this.shipStorage.rootElement.querySelector('#ship-storage').remove();
     this.shipStorage.display(this.mainElement);
   }
@@ -81,6 +83,9 @@ class ShipPlaceState {
       this.playerModel.ownField
     );
     const cells = document.querySelectorAll('#player1-container td');
+    cells.forEach((cell) => {
+      cell.removeEventListener('drop', this.dropHandlerRef);
+    });
     this.paintCells(cells, mask);
   }
 
@@ -270,13 +275,14 @@ class ShipPlaceState {
 
   paintCells(cells, mask) {
     const flattenMask = mask.flat();
+    this.dropHandlerRef = this.dropHandler.bind(this);
     cells.forEach((cell, index) => {
       if (flattenMask[index]) {
         cell.classList.add('placement-allowed');
         cell.addEventListener('dragenter', this.dragEnterHandler());
         cell.addEventListener('dragleave', this.dragLeaveHadler());
         cell.addEventListener('dragover', this.dragOverHandler());
-        cell.addEventListener('drop', this.dropHandler.bind(this));
+        cell.addEventListener('drop', this.dropHandlerRef);
       } else {
         cell.classList.add('placement-forbidden');
       }
