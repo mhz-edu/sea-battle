@@ -7,8 +7,8 @@ class Communication {
   }
 
   async inititialize() {
-    const open = new Promise((resolve, reject) => {
-      this.peer = new Peer(null, { debug: 3 });
+    const open = new Promise((resolve) => {
+      this.peer = new Peer(null, { debug: 2 });
       this.peer.on('open', (id) => {
         console.log('my id ', id);
         resolve(id);

@@ -51,15 +51,19 @@ class Controller {
       incomingEvent.type === 'shot' &&
       incomingEvent.detail.playerName !== this.playerName
     ) {
-      const { playerName, coords } = incomingEvent.detail;
-      const { x, y } = coords;
+      const {
+        coords: { x, y },
+      } = incomingEvent.detail;
       this.receiveShoot(x, y);
     } else if (
       incomingEvent.type === 'shotResult' &&
       incomingEvent.detail.playerName !== this.playerName
     ) {
-      const { playerName, coords, result, noShips } = incomingEvent.detail;
-      const { x, y } = coords;
+      const {
+        coords: { x, y },
+        result,
+        noShips,
+      } = incomingEvent.detail;
       this.processShotFeedback(x, y, result, noShips);
     }
   }

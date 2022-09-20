@@ -9,7 +9,7 @@ class Bot {
 
     this.botController = new Controller('bot', this.botModel, () => {
       console.log('inside bot select cell');
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           resolve(this.botShoot(this.botModel));
         }, 1000);

@@ -77,8 +77,7 @@ class GameState {
     document.addEventListener('gameover', this.gameoverHandler);
   }
 
-  gameoverHandler(gameoverEvent) {
-    const { outcome } = gameoverEvent.detail;
+  gameoverHandler({ detail: { outcome } }) {
     stateMachine.change('gameover', outcome);
   }
 

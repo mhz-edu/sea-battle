@@ -1,7 +1,7 @@
 class EventManager {
   constructor() {
     this.listeners = [];
-    this.events = ['start', 'shot', 'shotResult', 'turnEnd', 'noShips'];
+    this.events = ['start', 'shot', 'shotResult', 'turnEnd'];
     this.handler = this.eventNotifier.bind(this);
   }
 
@@ -15,7 +15,6 @@ class EventManager {
 
   initialize() {
     console.log('initialize event mgr');
-    console.log('Listeners', this.listeners);
     for (let event of this.events) {
       document.addEventListener(event, this.handler);
     }
