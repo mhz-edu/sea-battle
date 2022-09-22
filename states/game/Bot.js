@@ -5,7 +5,7 @@ class Bot {
     // Place bot ships
     this.randomShips();
 
-    this.botController = new Controller('bot', this.botModel, () => {
+    this.botController = new Controller('Bot', this.botModel, () => {
       console.log('inside bot select cell');
       return new Promise((resolve) => {
         setTimeout(() => {

@@ -70,7 +70,7 @@ class View {
     if (event.type === 'start') {
       this.statusLine.innerText = 'Player 1 turn...';
     } else if (event.type === 'turnEnd') {
-      if (event.detail.playerName === 'player') {
+      if (event.detail.playerName === 'Player 1') {
         this.statusLine.innerText = 'Player 2 turn...';
       } else {
         this.statusLine.innerText = 'Player 1 turn...';

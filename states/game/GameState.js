@@ -19,10 +19,12 @@ class GameState {
     playerNameDiv.innerText = `You are ${
       this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2'
     }`;
-    this.app.appendChild(playerNameDiv);
+    this.gameField.appendChild(playerNameDiv);
 
     this.gameField.setAttribute('id', 'game-field');
-    this.gameField.innerHTML = `
+    this.gameField.innerHTML =
+      this.gameField.innerHTML +
+      `
         <div>Your field</div>
         <div id="player1-container"></div>
         <br>
@@ -33,7 +35,7 @@ class GameState {
 
     let firstPlayer, secondPlayer;
     if (this.lastStateParams.gameType === 'single') {
-      const playerName = 'player';
+      const playerName = 'Player 1';
       firstPlayer = new Controller(
         playerName,
         this.playerModel,
@@ -43,8 +45,8 @@ class GameState {
       secondPlayer = bot.botController;
     } else if (this.lastStateParams.gameType === 'multi') {
       if (this.lastStateParams.userRole === 'main') {
-        const playerName = 'player';
-        const netPlayerName = 'player2';
+        const playerName = 'Player 1';
+        const netPlayerName = 'Player 2';
         firstPlayer = new Controller(
           playerName,
           this.playerModel,
@@ -52,8 +54,8 @@ class GameState {
         );
         secondPlayer = new networkPlayer(netPlayerName, this.comm);
       } else {
-        const playerName = 'player2';
-        const netPlayerName = 'player';
+        const playerName = 'Player 2';
+        const netPlayerName = 'Player 1';
         firstPlayer = new networkPlayer(netPlayerName, this.comm);
         secondPlayer = new Controller(
           playerName,
