@@ -5,7 +5,7 @@ class MenuState {
       screen: {
         title: 'Main menu',
         options: [
-          { title: 'Start Game', id: 'newGame' },
+          { title: 'Start Game with Bot', id: 'newGame' },
           { title: 'Multiplayer - Start', id: 'multiStart' },
           { title: 'Multiplayer - Connect', id: 'multiConn' },
         ],
