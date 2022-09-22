@@ -49,7 +49,7 @@ class Bot {
       .fill(null)
       .map(() => Array(size).fill(true));
 
-    const ships = { 1: 2, 2: 1 };
+    const ships = { 1: 4, 2: 3, 3: 2, 4: 1 };
     let tries = 0;
     while (!Object.values(ships).every((val) => val === 0)) {
       let trySuccessful = false;

@@ -1,4 +1,4 @@
-const size = 3;
+const size = 10;
 
 const app = document.querySelector('#app');
 

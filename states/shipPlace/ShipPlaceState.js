@@ -4,7 +4,7 @@ class ShipPlaceState {
     this.mainElement = document.createElement('div');
     this.playerModel = new Model();
     this.view = new View(this.playerModel, this.mainElement);
-    this.initialShips = { 1: 2, 2: 1 };
+    this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
     this.shipStorage = null;
     this.shipInDrag = null;
     this.lastStateParams = null;
