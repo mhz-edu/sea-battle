@@ -182,69 +182,17 @@ class ShipPlaceState {
   }
 
   getAvailableCells(shipSize, orientation, field) {
-    const markAroundShipCell = (x, y, mask) => {
-      const coordsMatrix = [
-        [-1, -1],
-        [0, -1],
-        [1, -1],
-        [-1, 0],
-        [0, 0],
-        [1, 0],
-        [-1, 1],
-        [0, 1],
-        [1, 1],
-      ];
-      coordsMatrix.forEach(([dx, dy]) => {
-        const getX = x + dx;
-        const getY = y + dy;
-        if (getX >= 0 && getX < size && getY >= 0 && getY < size) {
-          mask[x + dx][y + dy] = false;
-        }
-      });
-    };
-
-    const getEmptyCellsInRow = (rowArray) => {
-      const lengthsArray = rowArray
-        .map((i) => (i ? 1 : 0))
-        .join('')
-        .split('0')
-        .map((s) => s.length);
-      const emptyCellsMap = [];
-      let start = 0;
-      let end = 0;
-      lengthsArray.forEach((part) => {
-        if (part === 0) {
-          start = start + 1;
-          end = end + 1;
-        } else {
-          emptyCellsMap.push({
-            start: start,
-            end: start + part - 1,
-            length: part,
-          });
-          start = part;
-          end = part;
-        }
-      });
-      return emptyCellsMap;
-    };
-
     const mask = Array(size)
       .fill(null)
       .map(() => Array(size).fill(true));
 
     // First pass to mark area around the ships
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
-        if (field[row][col] === 'S') {
-          markAroundShipCell(row, col, mask);
-        }
-      }
-    }
+    utils.updateFieldMask(field, mask);
+
     // Second pass to mark available space in rows or columns
     if (orientation === 'h') {
       mask.forEach((row, rowIndex) => {
-        const emptyCellsMap = getEmptyCellsInRow(row);
+        const emptyCellsMap = utils.getEmptyCellsInRow(row);
         emptyCellsMap.forEach(({ start, end, length }) => {
           if (length < shipSize) {
             for (let i = start; i <= end; i++) {
@@ -259,7 +207,7 @@ class ShipPlaceState {
         for (let rowIndex = 0; rowIndex < size; rowIndex++) {
           col.push(mask[rowIndex][colIndex]);
         }
-        const emptyCellsMap = getEmptyCellsInRow(col);
+        const emptyCellsMap = utils.getEmptyCellsInRow(col);
         emptyCellsMap.forEach(({ start, end, length }) => {
           if (length < shipSize) {
             for (let i = start; i <= end; i++) {
