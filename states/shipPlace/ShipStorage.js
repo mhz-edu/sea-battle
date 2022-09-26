@@ -37,6 +37,7 @@ class ShipStorage {
   display(element) {
     this.rootElement = element;
     const wrapper = document.createElement('div');
+    wrapper.innerText = 'Drag and drop ships onto available cells';
     wrapper.setAttribute('id', 'ship-storage');
     for (let ship in this.ships) {
       const storageCell = document.createElement('div');
