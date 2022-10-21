@@ -1,15 +1,32 @@
 class Model {
   constructor() {
-    this.ownField = Array(size)
+    this.own = Array(size)
       .fill(null)
       .map(() => Array(size).fill('E'));
-    this.enemyField = Array(size)
+    this.enemy = Array(size)
       .fill(null)
       .map(() => Array(size).fill('?'));
+
+    this.ownField = this.own;
+    this.enemyField = this.enemy;
+
+    this.rows = function* (fieldMark) {
+      yield* this[fieldMark];
+    };
+
+    this.cols = function* (fieldMark) {
+      for (let colIndex = 0; colIndex < size; colIndex++) {
+        const col = [];
+        for (let rowIndex = 0; rowIndex < size; rowIndex++) {
+          col.push(this[fieldMark][rowIndex][colIndex]);
+        }
+        yield col;
+      }
+    };
   }
 
   checkCell(x, y) {
-    if (this.ownField[y][x] === 'S') {
+    if (this.own[y][x] === 'S') {
       return 'H';
     } else {
       return 'M';
@@ -17,14 +34,10 @@ class Model {
   }
 
   checkField() {
-    return this.ownField.flat().some((cell) => cell === 'S');
+    return this.own.flat().some((cell) => cell === 'S');
   }
 
   updateCell(x, y, value, fieldMark) {
-    if (fieldMark === 'own') {
-      this.ownField[y][x] = value;
-    } else if (fieldMark === 'enemy') {
-      this.enemyField[y][x] = value;
-    }
+    this[fieldMark][y][x] = value;
   }
 }
