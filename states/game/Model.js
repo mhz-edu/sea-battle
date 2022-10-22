@@ -23,6 +23,10 @@ class Model {
         yield col;
       }
     };
+
+    this._mask = Array(size)
+      .fill(null)
+      .map(() => Array(size).fill(true));
   }
 
   checkCell(x, y) {
@@ -39,5 +43,26 @@ class Model {
 
   updateCell(x, y, value, fieldMark) {
     this[fieldMark][y][x] = value;
+  }
+
+  getMask(shipSize, shipOrient) {
+    utils.updateFieldMask(this.own, this._mask);
+
+    const rowCol = shipOrient === 'h' ? 'rows' : 'cols';
+    let lineIndex = 0;
+    for (let line of this[rowCol]('_mask')) {
+      const emptyCellsMap = utils.getEmptyCellsInRow(line);
+      emptyCellsMap.forEach(({ start, end, length }) => {
+        if (length < shipSize) {
+          for (let i = start; i <= end; i++) {
+            const xyPair = rowCol === 'rows' ? [i, lineIndex] : [lineIndex, i];
+            this.updateCell(...xyPair, false, '_mask');
+          }
+        }
+      });
+      lineIndex++;
+    }
+
+    return this._mask;
   }
 }
