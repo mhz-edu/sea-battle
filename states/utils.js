@@ -49,8 +49,8 @@ const utils = {
           end: start + part - 1,
           length: part,
         });
-        start = part;
-        end = part;
+        start = start + part + 1;
+        end = end + part + 1;
       }
     });
     return emptyCellsMap;
