@@ -45,69 +45,40 @@ class Bot {
      *   8. if placement was successful, continue to the next ship, else try to place same ship again
      * If number of tries to place the ship exceeds 10, throw an error
      */
-    const mask = Array(size)
-      .fill(null)
-      .map(() => Array(size).fill(true));
-
     const ships = { 1: 4, 2: 3, 3: 2, 4: 1 };
     let tries = 0;
     while (!Object.values(ships).every((val) => val === 0)) {
       let trySuccessful = false;
       const orientation = Math.random() >= 0.5 ? 'h' : 'v';
-      // const orientation = 'v';
       const biggestShipSize = Math.max(
         ...Object.entries(ships)
           .filter(([size, qty]) => qty !== 0)
           .map(([size, qty]) => size)
       );
 
-      utils.updateFieldMask(this.botModel.ownField, mask);
+      const mask = this.botModel.getMask(biggestShipSize, orientation);
 
-      const randomRowColumn = Math.floor(Math.random() * size);
+      const randomRowColumn = Math.floor(
+        Math.random() * (size - biggestShipSize)
+      );
 
-      if (orientation === 'h') {
-        const emptyCellsMap = utils.getEmptyCellsInRow(mask[randomRowColumn]);
-        for (let { start, end, length } of emptyCellsMap) {
-          if (biggestShipSize <= length) {
-            // select random placement inside free space
-            const randomStart = Math.floor(
-              Math.random() * (length - biggestShipSize + 1)
-            );
-            // place ship
-            this.botModel.ownField[randomRowColumn].splice(
-              start + randomStart,
-              biggestShipSize,
-              ...Array(biggestShipSize).fill('S')
-            );
-            ships[biggestShipSize] = ships[biggestShipSize] - 1;
-            trySuccessful = true;
-            break;
-          }
-        }
-      } else if (orientation === 'v') {
-        const col = [];
-        for (let rowIndex = 0; rowIndex < size; rowIndex++) {
-          col.push(mask[rowIndex][randomRowColumn]);
-        }
-        const emptyCellsMap = utils.getEmptyCellsInRow(col);
-        for (let { start, end, length } of emptyCellsMap) {
-          if (biggestShipSize <= length) {
-            // select random placement inside free space
-            const randomStart = Math.floor(
-              Math.random() * (length - biggestShipSize + 1)
-            );
-            // place ship
-            for (
-              let rowIndex = start + randomStart;
-              rowIndex < start + randomStart + biggestShipSize;
-              rowIndex++
-            ) {
-              this.botModel.ownField[rowIndex][randomRowColumn] = 'S';
-            }
-            ships[biggestShipSize] = ships[biggestShipSize] - 1;
-            trySuccessful = true;
-            break;
-          }
+      const emptyCellsMap = utils.getEmptyCellsInRow(mask[randomRowColumn]);
+      for (let { start, end, length } of emptyCellsMap) {
+        if (biggestShipSize <= length) {
+          // select random placement inside free space
+          const randomStart = Math.floor(
+            Math.random() * (length - biggestShipSize + 1)
+          );
+          // place ship
+          this.botModel.placeShip(
+            start + randomStart,
+            randomRowColumn,
+            biggestShipSize,
+            orientation
+          );
+          ships[biggestShipSize] = ships[biggestShipSize] - 1;
+          trySuccessful = true;
+          break;
         }
       }
       if (!trySuccessful) {
