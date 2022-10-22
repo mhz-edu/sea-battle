@@ -77,10 +77,9 @@ class ShipPlaceState {
     console.log(event);
     this.shipInDrag = parseInt(event.target.dataset.value);
     event.dataTransfer.setDragImage(event.target, 13, 13);
-    const mask = this.getAvailableCells(
+    const mask = this.playerModel.getMask(
       this.shipInDrag,
-      this.shipStorage.orientation,
-      this.playerModel.ownField
+      this.shipStorage.orientation
     );
     const cells = document.querySelectorAll('#player1-container td');
     cells.forEach((cell) => {
@@ -179,46 +178,6 @@ class ShipPlaceState {
 
   dragOverHandler() {
     return this.dragProcessHandler();
-  }
-
-  getAvailableCells(shipSize, orientation, field) {
-    const mask = Array(size)
-      .fill(null)
-      .map(() => Array(size).fill(true));
-
-    // First pass to mark area around the ships
-    utils.updateFieldMask(field, mask);
-
-    // Second pass to mark available space in rows or columns
-    if (orientation === 'h') {
-      mask.forEach((row, rowIndex) => {
-        const emptyCellsMap = utils.getEmptyCellsInRow(row);
-        emptyCellsMap.forEach(({ start, end, length }) => {
-          if (length < shipSize) {
-            for (let i = start; i <= end; i++) {
-              mask[rowIndex][i] = false;
-            }
-          }
-        });
-      });
-    } else if (orientation === 'v') {
-      for (let colIndex = 0; colIndex < size; colIndex++) {
-        const col = [];
-        for (let rowIndex = 0; rowIndex < size; rowIndex++) {
-          col.push(mask[rowIndex][colIndex]);
-        }
-        const emptyCellsMap = utils.getEmptyCellsInRow(col);
-        emptyCellsMap.forEach(({ start, end, length }) => {
-          if (length < shipSize) {
-            for (let i = start; i <= end; i++) {
-              mask[i][colIndex] = false;
-            }
-          }
-        });
-      }
-    }
-
-    return mask;
   }
 
   paintCells(cells, mask) {
