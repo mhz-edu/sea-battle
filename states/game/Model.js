@@ -45,6 +45,19 @@ class Model {
     this[fieldMark][y][x] = value;
   }
 
+  placeShip(x, y, shipSize, shipOrient) {
+    let delta = shipSize;
+    while (delta > 0) {
+      this.updateCell(x, y, 'S', 'own');
+      delta = delta - 1;
+      if (shipOrient === 'h') {
+        x = x + 1;
+      } else {
+        y = y + 1;
+      }
+    }
+  }
+
   getMask(shipSize, shipOrient) {
     utils.updateFieldMask(this.own, this._mask);
 

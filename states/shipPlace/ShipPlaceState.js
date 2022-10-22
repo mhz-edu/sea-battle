@@ -99,15 +99,12 @@ class ShipPlaceState {
   dropHandler(event) {
     event.preventDefault();
     const [x, y] = event.target.dataset.value.split('').map((n) => parseInt(n));
-    if (this.shipStorage.orientation === 'h') {
-      for (let i = 0; i < this.shipInDrag; i++) {
-        this.playerModel.updateCell(x + i, y, 'S', 'own');
-      }
-    } else {
-      for (let i = 0; i < this.shipInDrag; i++) {
-        this.playerModel.updateCell(x, y + i, 'S', 'own');
-      }
-    }
+    this.playerModel.placeShip(
+      x,
+      y,
+      this.shipInDrag,
+      this.shipStorage.orientation
+    );
     this.shipStorage.decrementShipQuantity(this.shipInDrag);
     this.view.updateOwnField();
     this.shipStorage.updateDisplay();
