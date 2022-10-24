@@ -1,7 +1,6 @@
-class MenuState {
-  constructor(app) {
-    this.app = app;
-    this.menu = {
+class MenuState extends BaseState {
+  init() {
+    const menu = {
       screen: {
         title: 'Main menu',
         options: [
@@ -11,33 +10,30 @@ class MenuState {
         ],
       },
     };
-    this.menuElement = null;
+    this.template = (props) => ({
+      templ: `
+      <div>${props.title}</div>
+      <ul>
+        <li><div><button id="${props.options[0].id}" data-value="${props.options[0].id}">${props.options[0].title}</button></div></li>
+        <li><div><button id="${props.options[1].id}" data-value="${props.options[1].id}">${props.options[1].title}</button></div></li>
+        <li><div><button id="${props.options[2].id}" data-value="${props.options[2].id}">${props.options[2].title}</button></div></li>
+      </ul>
+      `,
+      refs: {},
+    });
+    this.stateContainer = this.generateMenu(menu);
   }
 
-  enter() {
-    if (!this.menuElement) {
-      this.menuElement = this.generateMenu(this.menu);
-    }
-    this.app.appendChild(this.menuElement);
-  }
-
-  exit() {
-    this.app.removeChild(this.menuElement);
-  }
-
-  generateMenu() {
+  generateMenu(menu) {
     const menuElement = document.createElement('div');
-    for (let screen in this.menu) {
-      const menuScreen = document.createElement('div');
-      menuScreen.innerText = this.menu[screen].title;
-      for (let option of this.menu[screen].options) {
-        const optionBtn = document.createElement('button');
-        optionBtn.innerText = option.title;
-        optionBtn.setAttribute('data-value', option.id);
-        optionBtn.addEventListener('click', this.processUserSelect);
-        menuScreen.appendChild(optionBtn);
-      }
-      menuElement.appendChild(menuScreen);
+    const menuTemplate = this.template(menu.screen);
+    menuElement.innerHTML = menuTemplate.templ;
+    for (let option of menu.screen.options) {
+      menuTemplate.refs[option.id] = menuElement.querySelector(`#${option.id}`);
+      menuTemplate.refs[option.id].addEventListener(
+        'click',
+        this.processUserSelect
+      );
     }
     return menuElement;
   }

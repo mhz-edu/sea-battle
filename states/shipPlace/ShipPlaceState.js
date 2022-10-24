@@ -1,9 +1,9 @@
-class ShipPlaceState {
+class ShipPlaceState extends BaseState {
   constructor(app) {
-    this.app = app;
-    this.mainElement = document.createElement('div');
+    super(app);
+    this.stateContainer = document.createElement('div');
     this.playerModel = new Model();
-    this.view = new View(this.playerModel, this.mainElement);
+    this.view = new View(this.playerModel, this.stateContainer);
     this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
     this.shipStorage = null;
     this.shipInDrag = null;
@@ -19,27 +19,23 @@ class ShipPlaceState {
       this.dragEndHandler.bind(this)
     );
 
-    this.mainElement.innerHTML = `
+    this.stateContainer.innerHTML = `
     <div>Player field</div>
     <div id="player1-container"></div>`;
-    this.app.appendChild(this.mainElement);
+    this.appContainer.appendChild(this.stateContainer);
     this.view.displayOwnField();
     const resetBtn = document.createElement('button');
     resetBtn.innerText = 'Reset Field';
     resetBtn.addEventListener('click', this.fieldResetHandler.bind(this));
-    this.mainElement.appendChild(resetBtn);
+    this.stateContainer.appendChild(resetBtn);
     const completeBtn = document.createElement('button');
     completeBtn.innerText = 'Placement complete';
     completeBtn.addEventListener(
       'click',
       this.placementCompleteHandler.bind(this)
     );
-    this.mainElement.appendChild(completeBtn);
-    this.shipStorage.display(this.mainElement);
-  }
-
-  exit() {
-    this.app.removeChild(this.mainElement);
+    this.stateContainer.appendChild(completeBtn);
+    this.shipStorage.display(this.stateContainer);
   }
 
   placementCompleteHandler() {
@@ -70,7 +66,7 @@ class ShipPlaceState {
     this.shipStorage.ships = Object.assign({}, this.initialShips);
     this.shipStorage.orientation = 'h';
     this.shipStorage.rootElement.querySelector('#ship-storage').remove();
-    this.shipStorage.display(this.mainElement);
+    this.shipStorage.display(this.stateContainer);
   }
 
   dragStartHandler(event) {
