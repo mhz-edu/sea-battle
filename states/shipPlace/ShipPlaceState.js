@@ -1,45 +1,52 @@
-class ShipPlaceState {
-  constructor(app) {
-    this.app = app;
-    this.mainElement = document.createElement('div');
-    this.playerModel = new Model();
-    this.view = new View(this.playerModel, this.mainElement);
-    this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
-    this.shipStorage = null;
-    this.shipInDrag = null;
-    this.lastStateParams = null;
-    this.dropHandlerRef = null;
-  }
-
-  enter(params) {
+class ShipPlaceState extends BaseState {
+  init(params) {
     this.lastStateParams = params;
+    this.stateContainer = document.createElement('div');
+    this.playerModel = new Model();
+    this.view = new View(this.playerModel, this.stateContainer);
+    this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
+    this.dropHandlerRef = null;
     this.shipStorage = new ShipStorage(
       Object.assign({}, this.initialShips),
       this.dragStartHandler.bind(this),
       this.dragEndHandler.bind(this)
     );
 
-    this.mainElement.innerHTML = `
-    <div>Player field</div>
-    <div id="player1-container"></div>`;
-    this.app.appendChild(this.mainElement);
+    this.template = (props) => ({
+      templ: `
+      <div>${props.title}</div>
+      <div id="player1-container"></div>
+      <div><button id="${props.options[0].id}" data-value="${props.options[0].id}">${props.options[0].title}</button></div>
+      <div><button id="${props.options[1].id}" data-value="${props.options[1].id}">${props.options[1].title}</button></div>
+      `,
+      refs: {},
+    });
+    const props = {
+      title: 'Player field',
+      options: [
+        { id: 'reset', title: 'Reset Field' },
+        { id: 'complete', title: 'Placement complete' },
+      ],
+    };
+    const screenTemplate = this.template(props);
+
+    this.stateContainer.innerHTML = screenTemplate.templ;
+    for (let option of props.options) {
+      screenTemplate.refs[option.id] = this.stateContainer.querySelector(
+        `#${option.id}`
+      );
+    }
     this.view.displayOwnField();
-    const resetBtn = document.createElement('button');
-    resetBtn.innerText = 'Reset Field';
-    resetBtn.addEventListener('click', this.fieldResetHandler.bind(this));
-    this.mainElement.appendChild(resetBtn);
-    const completeBtn = document.createElement('button');
-    completeBtn.innerText = 'Placement complete';
-    completeBtn.addEventListener(
+    screenTemplate.refs['reset'].addEventListener(
+      'click',
+      this.fieldResetHandler.bind(this)
+    );
+    screenTemplate.refs['complete'].addEventListener(
       'click',
       this.placementCompleteHandler.bind(this)
     );
-    this.mainElement.appendChild(completeBtn);
-    this.shipStorage.display(this.mainElement);
-  }
 
-  exit() {
-    this.app.removeChild(this.mainElement);
+    this.shipStorage.display(this.stateContainer);
   }
 
   placementCompleteHandler() {
@@ -70,7 +77,7 @@ class ShipPlaceState {
     this.shipStorage.ships = Object.assign({}, this.initialShips);
     this.shipStorage.orientation = 'h';
     this.shipStorage.rootElement.querySelector('#ship-storage').remove();
-    this.shipStorage.display(this.mainElement);
+    this.shipStorage.display(this.stateContainer);
   }
 
   dragStartHandler(event) {
