@@ -55,4 +55,32 @@ const utils = {
     });
     return emptyCellsMap;
   },
+
+  templateParser(text) {
+    const domParser = new DOMParser();
+    const doc = domParser.parseFromString(text, 'text/html');
+    const fragment = document.createDocumentFragment();
+    fragment.append(doc.body.firstChild.cloneNode(true));
+    const root = fragment.firstChild;
+    const queue = [root];
+    while (queue.length > 0) {
+      let currentNode = queue.pop();
+      queue.push(...currentNode.children);
+      if (customElements.get(currentNode.tagName.toLocaleLowerCase())) {
+        const props = [...currentNode.attributes].reduce((acc, curr) => {
+          acc[curr.name] = curr.value;
+          return acc;
+        }, {});
+
+        props.context = this;
+        const newElement = new (customElements.get(
+          currentNode.tagName.toLocaleLowerCase()
+        ))(props);
+        newElement.append(...currentNode.childNodes);
+
+        currentNode.replaceWith(newElement);
+      }
+    }
+    return fragment;
+  },
 };
