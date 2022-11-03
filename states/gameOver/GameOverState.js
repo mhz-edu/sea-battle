@@ -1,25 +1,22 @@
-class GameOverState {
-  constructor(app) {
-    this.app = app;
-    this.mainElement = null;
+class GameOverState extends BaseState {
+  init(params) {
+    const resultText = params === 'tie' ? 'Tie' : `${params} Loses!`;
+    this.stateContainer = this.templateParser(`
+      <div>
+        <div>
+          <my-text text="Game Over"></my-text>
+        </div>
+        <div>
+          <my-text text="${resultText}"></my-text>
+        </div>
+        <my-list click="processUserSelect">
+          <li slot="item"><my-button title="Return to Main Menu"></my-button></li>
+        </my-list>
+      <div>
+      `);
   }
 
-  enter(params) {
-    this.mainElement = document.createElement('div');
-    this.mainElement.setAttribute('id', 'victory');
-    const text = params === 'tie' ? 'Tie' : `${params} Loses!`;
-    this.mainElement.innerText = `Game Over! ${text} `;
-
-    const returnBtn = document.createElement('button');
-    returnBtn.innerText = 'Return to Main Menu';
-    returnBtn.addEventListener('click', () => {
-      stateMachine.change('menu');
-    });
-    this.mainElement.appendChild(returnBtn);
-    this.app.appendChild(this.mainElement);
-  }
-
-  exit() {
-    this.app.removeChild(this.mainElement);
+  processUserSelect() {
+    stateMachine.change('menu');
   }
 }
