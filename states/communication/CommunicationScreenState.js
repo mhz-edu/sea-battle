@@ -1,53 +1,56 @@
-class CommunicationScreenState {
-  constructor(app) {
-    this.app = app;
-    this.mainElement = null;
+class CommunicationScreenState extends BaseState {
+  init(params) {
     this.comm = new Communication(this.connectionCallBack.bind(this));
-    this.lastStateParams = null;
     this.stateChangeTimer = null;
-  }
-
-  async enter(params) {
     this.lastStateParams = params;
-    const wrapper = document.createElement('div');
-    const peerIdElement = document.createElement('div');
-    const peerText = document.createElement('div');
-    wrapper.appendChild(peerIdElement);
-    wrapper.appendChild(peerText);
     try {
-      await this.comm.inititialize();
-      if (this.lastStateParams.userRole === 'main') {
-        peerIdElement.innerText = this.comm.peerId;
-        peerText.innerText = 'Comunicate this id to another player';
-      } else {
-        peerText.innerText = 'Enter another player id';
-        const inputId = document.createElement('input');
-        const connBtn = document.createElement('button');
-        connBtn.innerText = 'Connect';
-        connBtn.addEventListener('click', () => {
-          this.comm.connect(inputId.value);
-        });
-        wrapper.appendChild(inputId);
-        wrapper.appendChild(connBtn);
-      }
+      this.comm.inititialize();
     } catch (err) {
-      peerText.innerText = `Something went wrong. Please restart
-      ${err}`;
+      console.log(err);
     }
-    const cancelBtn = document.createElement('button');
-    cancelBtn.innerText = 'Cancel and return to Main Menu';
-    cancelBtn.addEventListener('click', () => {
-      clearTimeout(this.stateChangeTimer);
-      this.comm.cancelConnection();
-      stateMachine.change('menu');
-    });
-    wrapper.appendChild(cancelBtn);
-    this.mainElement = wrapper;
-    this.app.appendChild(this.mainElement);
+
+    if (this.lastStateParams.userRole === 'main') {
+      this.stateContainer = this.templateParser(`
+      <div>
+          <div>
+            <my-text text="Multiplayer game"></my-text>
+          </div>
+          <div>
+          <my-text text="Comunicate this id to another player"></my-text>
+            <my-text text="${this.comm.peerId}"></my-text>
+          </div>
+          <my-list click="processUserSelect">
+            <li slot="item"><my-button title="Cancel and return to Main Menu"></my-button></li>
+          </my-list>
+        <div>
+      `);
+    } else {
+      this.stateContainer = this.templateParser(`
+      <div>
+          <div>
+            <my-text text="Multiplayer game"></my-text>
+          </div>
+          <div>
+            <my-text text="Enter another player id"></my-text>
+            <input></input>
+            <my-button title="Connect" click="connectHandler"></my-button>
+          </div>
+          <my-list click="processUserSelect">
+            <li slot="item"><my-button title="Cancel and return to Main Menu"></my-button></li>
+          </my-list>
+        <div>
+      `);
+    }
   }
 
-  exit() {
-    this.app.removeChild(this.mainElement);
+  connectHandler() {
+    this.comm.connect(inputId.value);
+  }
+
+  processUserSelect() {
+    clearTimeout(this.stateChangeTimer);
+    this.comm.cancelConnection();
+    stateMachine.change('menu');
   }
 
   connectionCallBack() {
