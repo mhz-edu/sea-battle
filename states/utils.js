@@ -67,12 +67,19 @@ const utils = {
       let currentNode = queue.pop();
       queue.push(...currentNode.children);
       if (customElements.get(currentNode.tagName.toLocaleLowerCase())) {
-        const props = [...currentNode.attributes].reduce((acc, curr) => {
-          acc[curr.name] = curr.value;
+        let props = {};
+        props.context = this;
+
+        const parsedAttrs = [...currentNode.attributes].reduce((acc, curr) => {
+          if (props.context[curr.value]) {
+            acc[curr.name] = props.context[curr.value];
+          } else {
+            acc[curr.name] = curr.value;
+          }
           return acc;
         }, {});
 
-        props.context = this;
+        props = { ...props, ...parsedAttrs };
         const newElement = new (customElements.get(
           currentNode.tagName.toLocaleLowerCase()
         ))(props);

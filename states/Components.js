@@ -91,3 +91,74 @@ customElements.define(
     }
   }
 );
+
+customElements.define(
+  'loader-container',
+  class extends BaseElement {
+    constructor(props) {
+      super(props);
+      this.template.innerHTML = `
+            <div>
+                <slot name="content"></slot>
+            </div>`;
+
+      this.loaderTemplate = document.createElement('template');
+      this.loaderTemplate.innerHTML = `
+        <div>
+            ${props.text || 'Loading...'}
+        </div>`;
+      this.loaderRef = this.loaderTemplate.content.firstElementChild;
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+      const slotContent = this.shadowRoot
+        .querySelector('slot')
+        .assignedElements();
+      slotContent.forEach((element) => element.removeAttribute('slot'));
+      this.insertLoader();
+      this.updateElements(slotContent);
+    }
+
+    insertLoader() {
+      this.loaderRef.setAttribute('slot', 'content');
+      this.appendChild(this.loaderTemplate.content);
+    }
+
+    removeLoader() {
+      this.loaderRef.removeAttribute('slot');
+      this.loaderRef.remove();
+    }
+
+    updateElements(elements) {
+      Promise.all(
+        elements.map((element) => {
+          return new Promise((resolve, reject) => {
+            Promise.all(Object.values(element.props)).then((propsArr) => {
+              resolve([element, propsArr]);
+            });
+          });
+        })
+      ).then((elementsAndProps) => {
+        this.removeLoader();
+        elementsAndProps.forEach(([element, resolvedPropsArr]) => {
+          const newPropsObj = Object.keys(element.props).reduce(
+            (acc, curr, index) => {
+              acc[curr] = resolvedPropsArr[index];
+              return acc;
+            },
+            {}
+          );
+          element.remove();
+          const elementConstructor = customElements.get(
+            element.tagName.toLocaleLowerCase()
+          );
+          this.appendChild(new elementConstructor(newPropsObj)).setAttribute(
+            'slot',
+            'content'
+          );
+        });
+      });
+    }
+  }
+);
