@@ -55,4 +55,49 @@ const utils = {
     });
     return emptyCellsMap;
   },
+
+  templateParser(text) {
+    const domParser = new DOMParser();
+    const doc = domParser.parseFromString(text, 'text/html');
+    const fragment = document.createDocumentFragment();
+    fragment.append(doc.body.firstChild.cloneNode(true));
+    const root = fragment.firstChild;
+    const queue = [root];
+    while (queue.length > 0) {
+      let currentNode = queue.pop();
+      queue.push(...currentNode.children);
+      if (customElements.get(currentNode.tagName.toLocaleLowerCase())) {
+        let props = {};
+        props.context = this;
+        const subscribeTo = [];
+
+        const parsedAttrs = [...currentNode.attributes].reduce((acc, curr) => {
+          if (props.context[curr.value]) {
+            if (
+              props.context.subscribable &&
+              props.context.subscribable.includes(curr.value)
+            ) {
+              subscribeTo.push(curr.value);
+            }
+            acc[curr.name] = props.context[curr.value];
+          } else {
+            acc[curr.name] = curr.value;
+          }
+          return acc;
+        }, {});
+
+        props = { ...props, ...parsedAttrs };
+        const newElement = new (customElements.get(
+          currentNode.tagName.toLocaleLowerCase()
+        ))(props);
+        subscribeTo.forEach((propName) =>
+          props.context.subs[propName].push(newElement)
+        );
+        newElement.append(...currentNode.childNodes);
+
+        currentNode.replaceWith(newElement);
+      }
+    }
+    return fragment;
+  },
 };

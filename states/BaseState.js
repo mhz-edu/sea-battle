@@ -2,6 +2,7 @@ class BaseState {
   constructor(app) {
     this.appContainer = app;
     this.stateContainer = null;
+    this.templateParser = utils.templateParser.bind(this);
   }
 
   init() {}
@@ -19,7 +20,7 @@ class BaseState {
 
   exit() {
     if (this.stateContainer) {
-      this.appContainer.removeChild(this.stateContainer);
+      this.appContainer.replaceChildren([]);
     }
   }
 }

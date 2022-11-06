@@ -1,64 +1,63 @@
-class CommunicationScreenState {
-  constructor(app) {
-    this.app = app;
-    this.mainElement = null;
+class CommunicationScreenState extends BaseState {
+  init(params) {
     this.comm = new Communication(this.connectionCallBack.bind(this));
-    this.lastStateParams = null;
     this.stateChangeTimer = null;
-  }
-
-  async enter(params) {
     this.lastStateParams = params;
-    const wrapper = document.createElement('div');
-    const peerIdElement = document.createElement('div');
-    const peerText = document.createElement('div');
-    wrapper.appendChild(peerIdElement);
-    wrapper.appendChild(peerText);
-    try {
-      await this.comm.inititialize();
-      if (this.lastStateParams.userRole === 'main') {
-        peerIdElement.innerText = this.comm.peerId;
-        peerText.innerText = 'Comunicate this id to another player';
-      } else {
-        peerText.innerText = 'Enter another player id';
-        const inputId = document.createElement('input');
-        const connBtn = document.createElement('button');
-        connBtn.innerText = 'Connect';
-        connBtn.addEventListener('click', () => {
-          this.comm.connect(inputId.value);
-        });
-        wrapper.appendChild(inputId);
-        wrapper.appendChild(connBtn);
-      }
-    } catch (err) {
-      peerText.innerText = `Something went wrong. Please restart
-      ${err}`;
-    }
-    const cancelBtn = document.createElement('button');
-    cancelBtn.innerText = 'Cancel and return to Main Menu';
-    cancelBtn.addEventListener('click', () => {
-      clearTimeout(this.stateChangeTimer);
-      this.comm.cancelConnection();
-      stateMachine.change('menu');
-    });
-    wrapper.appendChild(cancelBtn);
-    this.mainElement = wrapper;
-    this.app.appendChild(this.mainElement);
+    this.peerId = this.comm.inititialize();
+    this._cs = ' ';
+    this.subs = { connectionStatus: [] };
+    this.subscribable = ['connectionStatus'];
+    const userRoleTemplate = {
+      main: `<loader-container>
+              <my-text slot="content" text="Comunicate this id to another player"></my-text>
+              <my-text slot="content" text="peerId"></my-text>
+            </loader-container>`,
+      second: `<div>
+                  <my-text text="Enter another player id"></my-text>
+                  <input-and-button click="connectHandler" title="Connect"></input-and-button>
+              </div>`,
+    };
+
+    this.stateContainer = this.templateParser(`
+    <div>
+          <div>
+            <my-text text="Multiplayer game"></my-text>
+          </div>
+          ${userRoleTemplate[this.lastStateParams.userRole]}
+          <my-text text="connectionStatus"></my-text>
+          <my-list click="processUserSelect">
+            <li slot="item"><my-button title="Cancel and return to Main Menu"></my-button></li>
+          </my-list>
+        <div>
+      `);
   }
 
-  exit() {
-    this.app.removeChild(this.mainElement);
+  get connectionStatus() {
+    return this._cs;
+  }
+
+  set connectionStatus(status) {
+    this._cs = status;
+    this.subs['connectionStatus'].forEach((sub) => sub.notify(status));
+  }
+
+  connectHandler(event) {
+    if (event.path[0].localName === 'button') {
+      this.comm.connect(this.input);
+    }
+  }
+
+  processUserSelect() {
+    clearTimeout(this.stateChangeTimer);
+    this.comm.cancelConnection();
+    stateMachine.change('menu');
   }
 
   connectionCallBack() {
-    const connDiv = document.createElement('div');
-    const messageDiv = document.createElement('div');
-    this.mainElement.appendChild(connDiv);
-    this.mainElement.appendChild(messageDiv);
     if (this.comm.connection) {
-      connDiv.innerText = 'connection established';
+      this.connectionStatus = 'connection established';
       this.stateChangeTimer = setTimeout(() => {
-        messageDiv.innerText = 'Staring the game...';
+        this.connectionStatus = 'Staring the game...';
         this.stateChangeTimer = setTimeout(() => {
           stateMachine.change('game', {
             commObj: this.comm,
@@ -67,7 +66,7 @@ class CommunicationScreenState {
         }, 3000);
       }, 1000);
     } else {
-      messageDiv.innerText = `Something went wrong. Please restart`;
+      this.connectionStatus = `Something went wrong. Please restart`;
     }
   }
 }
