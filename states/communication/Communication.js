@@ -2,19 +2,19 @@ class Communication {
   constructor(connectionCallback) {
     this.peer = null;
     this.connection = null;
-    this.peerId = null;
+    // this.peerId = null;
     this.connectionCallback = connectionCallback;
   }
 
   async inititialize() {
-    const open = new Promise((resolve) => {
+    const peerId = new Promise((resolve) => {
       this.peer = new Peer(null, { debug: 2 });
       this.peer.on('open', (id) => {
         console.log('my id ', id);
         resolve(id);
       });
     });
-    this.peerId = await open;
+    // this.peerId = await open;
     this.peer.on('connection', (newConnection) => {
       if (this.connection) {
         newConnection.on('open', () => {
@@ -37,12 +37,15 @@ class Communication {
     this.peer.on('error', (err) => {
       console.log(err);
     });
+    return peerId;
   }
 
   connect(id) {
     if (!this.connection) {
+      console.log('connect handler');
       this.connection = this.peer.connect(id, { serialization: 'json' });
       this.connection.on('open', () => {
+        console.log('connected');
         //Wait if connection going to be closed
         setTimeout(() => {
           this.connectionCallback();

@@ -2,14 +2,14 @@ class BaseElement extends HTMLElement {
   constructor(props) {
     super();
     if (!props) {
-      console.log('Element constructor without props');
+      console.log(`${this.localName} constructor without props`);
       console.log(this.attributes);
       this.props = [...this.attributes].reduce((acc, curr) => {
         acc[curr.name] = curr.value;
         return acc;
       }, {});
     } else {
-      console.log('Element constructor with props');
+      console.log(`${this.localName} constructor with props`);
       this.props = props;
       if (this.props.slot) {
         this.setAttribute('slot', this.props.slot);
@@ -18,7 +18,11 @@ class BaseElement extends HTMLElement {
       this.parseEventListeners();
     }
     this.template = document.createElement('template');
+    this.init(props);
+    this.createShadowRoot();
   }
+
+  init() {}
 
   parseDataValues() {
     Object.keys(this.props).forEach((key) => {
@@ -34,33 +38,36 @@ class BaseElement extends HTMLElement {
       if (this.props[eventType]) {
         this.addEventListener(
           eventType,
-          this.props.context[this.props[eventType]]
+          this.props[eventType].bind(this.props.context)
         );
       }
     });
   }
 
-  render() {
+  createShadowRoot() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.appendChild(this.template.content);
-  }
-
-  connectedCallback() {
-    this.render();
   }
 }
 
 customElements.define(
   'my-text',
   class extends BaseElement {
-    constructor(props) {
-      super(props);
+    init(props) {
       this.text = props.text;
       this.template.innerHTML = `
           <div>
-              <div>${this.text}</div>
+              <div id="main">${this.text}</div>
           </div>
           `;
+    }
+
+    connectedCallback() {
+      this.ref = this.shadowRoot.firstElementChild.querySelector('#main');
+    }
+
+    notify(val) {
+      this.ref.innerText = val;
     }
   }
 );
@@ -68,8 +75,7 @@ customElements.define(
 customElements.define(
   'my-button',
   class extends BaseElement {
-    constructor(props) {
-      super(props);
+    init(props) {
       this.title = props.title;
       this.template.innerHTML = `
           <div>
@@ -81,10 +87,37 @@ customElements.define(
 );
 
 customElements.define(
+  'input-and-button',
+  class extends BaseElement {
+    init(props) {
+      this.title = props.title;
+      this.template.innerHTML = `
+            <div>
+                <input id="main"></input>
+                <button>${this.title}</button>
+            </div>
+            `;
+    }
+
+    connectedCallback() {
+      this.ref = this.shadowRoot.firstElementChild.querySelector('#main');
+      let timerId;
+      this.ref.addEventListener('input', (event) => {
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+        timerId = setTimeout(() => {
+          this.props.context.input = event.path[0].value;
+        }, 500);
+      });
+    }
+  }
+);
+
+customElements.define(
   'my-list',
   class extends BaseElement {
-    constructor(props) {
-      super(props);
+    init(props) {
       this.template.innerHTML = `<div>
           <ul><slot name="item"></slot></ul>
           </div>`;
@@ -95,8 +128,7 @@ customElements.define(
 customElements.define(
   'loader-container',
   class extends BaseElement {
-    constructor(props) {
-      super(props);
+    init(props) {
       this.template.innerHTML = `
             <div>
                 <slot name="content"></slot>
@@ -104,30 +136,29 @@ customElements.define(
 
       this.loaderTemplate = document.createElement('template');
       this.loaderTemplate.innerHTML = `
-        <div>
-            ${props.text || 'Loading...'}
-        </div>`;
-      this.loaderRef = this.loaderTemplate.content.firstElementChild;
+                <div id="loader">
+                    ${props.text || 'Loading...'}
+                </div>
+          `;
+      this.appendChild(this.loaderTemplate.content);
+      this.loaderRef = this.querySelector('#loader');
     }
 
     connectedCallback() {
-      super.connectedCallback();
       const slotContent = this.shadowRoot
         .querySelector('slot')
         .assignedElements();
       slotContent.forEach((element) => element.removeAttribute('slot'));
-      this.insertLoader();
       this.updateElements(slotContent);
+      this.insertLoader();
     }
 
     insertLoader() {
       this.loaderRef.setAttribute('slot', 'content');
-      this.appendChild(this.loaderTemplate.content);
     }
 
     removeLoader() {
       this.loaderRef.removeAttribute('slot');
-      this.loaderRef.remove();
     }
 
     updateElements(elements) {
@@ -149,14 +180,13 @@ customElements.define(
             },
             {}
           );
-          element.remove();
           const elementConstructor = customElements.get(
             element.tagName.toLocaleLowerCase()
           );
-          this.appendChild(new elementConstructor(newPropsObj)).setAttribute(
-            'slot',
-            'content'
-          );
+          const newElement = new elementConstructor(newPropsObj);
+          element.remove();
+          newElement.setAttribute('slot', 'content');
+          this.append(newElement);
         });
       });
     }
