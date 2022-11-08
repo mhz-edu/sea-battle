@@ -1,74 +1,31 @@
-class GameState {
-  constructor(app) {
-    this.app = app;
-    this.playerModel = null;
+class GameState extends BaseState {
+  init(params) {
     this.eventMgr = new EventManager();
-    this.gameField = document.createElement('div');
-    this.view = null;
-    this.comm = null;
-    this.lastStateParams = null;
-  }
-
-  enter(params) {
     this.lastStateParams = params;
     this.playerModel = this.lastStateParams.playerModel;
     this.comm = this.lastStateParams.commObj;
-    this.view = new View(this.playerModel, this.gameField);
 
-    const playerNameDiv = document.createElement('div');
-    playerNameDiv.innerText = `You are ${
-      this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2'
-    }`;
-    this.gameField.appendChild(playerNameDiv);
-
-    this.gameField.setAttribute('id', 'game-field');
-    this.gameField.innerHTML =
-      this.gameField.innerHTML +
-      `
-        <div>Your field</div>
+    const userName =
+      this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2';
+    this.stateContainer = this.templateParser(`<div>
+        <my-text text="You are ${userName}"></my-text>
+        <my-text text="Your field"></my-text>
         <div id="player1-container"></div>
         <br>
-        <div>Enemy field</div>
+        <my-text text="Enemy field"></my-text>
         <div id="player2-container"></div>
-      `;
-    this.app.appendChild(this.gameField);
+    </div>`);
+    this.view = new View(this.playerModel, this.stateContainer);
 
-    let firstPlayer, secondPlayer;
-    if (this.lastStateParams.gameType === 'single') {
-      const playerName = 'Player 1';
-      firstPlayer = new Controller(
-        playerName,
-        this.playerModel,
-        this.playerSelectCell.bind(this)
-      );
-      const bot = new Bot();
-      secondPlayer = bot.botController;
-    } else if (this.lastStateParams.gameType === 'multi') {
-      if (this.lastStateParams.userRole === 'main') {
-        const playerName = 'Player 1';
-        const netPlayerName = 'Player 2';
-        firstPlayer = new Controller(
-          playerName,
-          this.playerModel,
-          this.playerSelectCell.bind(this)
-        );
-        secondPlayer = new networkPlayer(netPlayerName, this.comm);
-      } else {
-        const playerName = 'Player 2';
-        const netPlayerName = 'Player 1';
-        firstPlayer = new networkPlayer(netPlayerName, this.comm);
-        secondPlayer = new Controller(
-          playerName,
-          this.playerModel,
-          this.playerSelectCell.bind(this)
-        );
-      }
-    }
+    const game = this.createGame(
+      this.lastStateParams.gameType,
+      this.lastStateParams.userRole
+    );
 
-    const logic = new GameLogic(firstPlayer, secondPlayer);
+    const logic = new GameLogic(game.firstPlayer, game.secondPlayer);
 
-    this.eventMgr.addListener(firstPlayer);
-    this.eventMgr.addListener(secondPlayer);
+    this.eventMgr.addListener(game.firstPlayer);
+    this.eventMgr.addListener(game.secondPlayer);
     this.eventMgr.addListener(this.view);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
@@ -79,6 +36,37 @@ class GameState {
     document.addEventListener('gameover', this.gameoverHandler);
   }
 
+  createGame(gameType, userRole) {
+    const newPlayer = (playerName) => {
+      return new Controller(
+        playerName,
+        this.playerModel,
+        this.playerSelectCell.bind(this)
+      );
+    };
+
+    const game = {
+      single: {
+        main: {
+          firstPlayer: newPlayer('Player 1'),
+          secondPlayer: new Bot().botController,
+        },
+      },
+      multi: {
+        main: {
+          firstPlayer: newPlayer('Player 1'),
+          secondPlayer: new networkPlayer('Player 2', this.comm),
+        },
+        second: {
+          firstPlayer: new networkPlayer('Player 1', this.comm),
+          secondPlayer: newPlayer('Player 2'),
+        },
+      },
+    };
+
+    return game[gameType][userRole];
+  }
+
   gameoverHandler({ detail: { outcome } }) {
     stateMachine.change('gameover', outcome);
   }
@@ -86,13 +74,13 @@ class GameState {
   exit() {
     document.removeEventListener('gameover', this.gameoverHandler);
     this.eventMgr.destroy();
-    this.app.removeChild(this.gameField);
+    super.exit();
   }
 
   playerSelectCell() {
     console.log('inside player select cell func', this);
     return new Promise((resolve) => {
-      const cells = this.gameField.querySelectorAll('.player');
+      const cells = this.stateContainer.querySelectorAll('.player');
       cells.forEach((cell) => {
         if (cell.innerText === '?') {
           cell.addEventListener(
