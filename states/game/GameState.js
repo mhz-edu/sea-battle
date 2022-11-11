@@ -36,32 +36,20 @@ class GameState {
     let firstPlayer, secondPlayer;
     if (this.lastStateParams.gameType === 'single') {
       const playerName = 'Player 1';
-      firstPlayer = new Controller(
-        playerName,
-        this.playerModel,
-        this.playerSelectCell.bind(this)
-      );
+      firstPlayer = new Controller(playerName, this.playerModel);
       const bot = new Bot();
       secondPlayer = bot.botController;
     } else if (this.lastStateParams.gameType === 'multi') {
       if (this.lastStateParams.userRole === 'main') {
         const playerName = 'Player 1';
         const netPlayerName = 'Player 2';
-        firstPlayer = new Controller(
-          playerName,
-          this.playerModel,
-          this.playerSelectCell.bind(this)
-        );
+        firstPlayer = new Controller(playerName, this.playerModel);
         secondPlayer = new networkPlayer(netPlayerName, this.comm);
       } else {
         const playerName = 'Player 2';
         const netPlayerName = 'Player 1';
         firstPlayer = new networkPlayer(netPlayerName, this.comm);
-        secondPlayer = new Controller(
-          playerName,
-          this.playerModel,
-          this.playerSelectCell.bind(this)
-        );
+        secondPlayer = new Controller(playerName, this.playerModel);
       }
     }
 
@@ -74,6 +62,8 @@ class GameState {
     this.eventMgr.initialize();
 
     this.view.displayAll();
+    this.enemyField = this.gameField.querySelector('#player2-container');
+    this.enemyField.addEventListener('click', this.clickHandler.bind(this));
 
     document.dispatchEvent(new Event('start'));
     document.addEventListener('gameover', this.gameoverHandler);
@@ -89,22 +79,15 @@ class GameState {
     this.app.removeChild(this.gameField);
   }
 
-  playerSelectCell() {
-    console.log('inside player select cell func', this);
-    return new Promise((resolve) => {
-      const cells = this.gameField.querySelectorAll('.player');
-      cells.forEach((cell) => {
-        if (cell.innerText === '?') {
-          cell.addEventListener(
-            'click',
-            (ev) => {
-              console.log(ev);
-              resolve(ev.target.dataset.value.split(''));
-            },
-            { once: true }
-          );
-        }
-      });
+  clickHandler(event) {
+    const [x, y] = event.target.dataset.value.split('');
+    const clickEvent = new CustomEvent('playerCellSelect', {
+      detail: {
+        playerName:
+          this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2',
+        coords: { x, y },
+      },
     });
+    this.eventMgr.eventNotifier(clickEvent);
   }
 }
