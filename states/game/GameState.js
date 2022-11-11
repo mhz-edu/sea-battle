@@ -31,6 +31,8 @@ class GameState extends BaseState {
     this.eventMgr.initialize();
 
     this.view.displayAll();
+    this.enemyField = this.gameField.querySelector('#player2-container');
+    this.enemyField.addEventListener('click', this.clickHandler.bind(this));
 
     document.dispatchEvent(new Event('start'));
     document.addEventListener('gameover', this.gameoverHandler);
@@ -77,22 +79,15 @@ class GameState extends BaseState {
     super.exit();
   }
 
-  playerSelectCell() {
-    console.log('inside player select cell func', this);
-    return new Promise((resolve) => {
-      const cells = this.stateContainer.querySelectorAll('.player');
-      cells.forEach((cell) => {
-        if (cell.innerText === '?') {
-          cell.addEventListener(
-            'click',
-            (ev) => {
-              console.log(ev);
-              resolve(ev.target.dataset.value.split(''));
-            },
-            { once: true }
-          );
-        }
-      });
+  clickHandler(event) {
+    const [x, y] = event.target.dataset.value.split('');
+    const clickEvent = new CustomEvent('playerCellSelect', {
+      detail: {
+        playerName:
+          this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2',
+        coords: { x, y },
+      },
     });
+    this.eventMgr.eventNotifier(clickEvent);
   }
 }
