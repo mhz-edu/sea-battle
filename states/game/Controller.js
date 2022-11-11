@@ -2,7 +2,16 @@ class Controller {
   constructor(playerName, model, selectCell) {
     this.model = model;
     this.playerName = playerName;
-    this.selectCell = selectCell;
+    this.selectedCell = null;
+    if (!selectCell) {
+      this.selectCell = () => {
+        return new Promise((resolve) => {
+          this.selectedCell = resolve;
+        });
+      };
+    } else {
+      this.selectCell = selectCell;
+    }
   }
 
   shoot(x, y) {
@@ -65,6 +74,14 @@ class Controller {
         noShips,
       } = incomingEvent.detail;
       this.processShotFeedback(x, y, result, noShips);
+    } else if (
+      incomingEvent.type === 'playerCellSelect' &&
+      incomingEvent.detail.playerName === this.playerName
+    ) {
+      const {
+        coords: { x, y },
+      } = incomingEvent.detail;
+      this.selectedCell([x, y]);
     }
   }
 }
