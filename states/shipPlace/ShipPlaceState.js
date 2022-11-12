@@ -1,52 +1,36 @@
 class ShipPlaceState extends BaseState {
   init(params) {
     this.lastStateParams = params;
-    this.stateContainer = document.createElement('div');
     this.playerModel = new Model();
-    this.view = new View(this.playerModel, this.stateContainer);
     this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
     this.dropHandlerRef = null;
+    this.stateContainer = this.templateParser(`
+      <div>
+        <my-text text="Player field"></my-text>
+        <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
+        <my-list click="processUserSelect">
+          <li slot="item"><my-button title="Reset field" data-value="reset"></my-button></li>
+          <li slot="item"><my-button title="Placement complete" data-value="complete"></my-button></li>
+        </my-list>
+      </div>
+    `);
+
     this.shipStorage = new ShipStorage(
       Object.assign({}, this.initialShips),
       this.dragStartHandler.bind(this),
       this.dragEndHandler.bind(this)
     );
 
-    this.template = (props) => ({
-      templ: `
-      <div>${props.title}</div>
-      <div id="player1-container"></div>
-      <div><button id="${props.options[0].id}" data-value="${props.options[0].id}">${props.options[0].title}</button></div>
-      <div><button id="${props.options[1].id}" data-value="${props.options[1].id}">${props.options[1].title}</button></div>
-      `,
-      refs: {},
-    });
-    const props = {
-      title: 'Player field',
-      options: [
-        { id: 'reset', title: 'Reset Field' },
-        { id: 'complete', title: 'Placement complete' },
-      ],
-    };
-    const screenTemplate = this.template(props);
-
-    this.stateContainer.innerHTML = screenTemplate.templ;
-    for (let option of props.options) {
-      screenTemplate.refs[option.id] = this.stateContainer.querySelector(
-        `#${option.id}`
-      );
-    }
-    this.view.displayOwnField();
-    screenTemplate.refs['reset'].addEventListener(
-      'click',
-      this.fieldResetHandler.bind(this)
-    );
-    screenTemplate.refs['complete'].addEventListener(
-      'click',
-      this.placementCompleteHandler.bind(this)
-    );
-
     this.shipStorage.display(this.stateContainer);
+  }
+
+  processUserSelect(clickEvent) {
+    const options = {
+      reset: this.fieldResetHandler,
+      complete: this.placementCompleteHandler,
+    };
+    const userSelect = clickEvent.target.dataset.value;
+    options[userSelect].call(this);
   }
 
   placementCompleteHandler() {
@@ -73,7 +57,6 @@ class ShipPlaceState extends BaseState {
         this.playerModel.updateCell(x, y, 'E', 'own');
       }
     }
-    this.view.updateOwnField();
     this.shipStorage.ships = Object.assign({}, this.initialShips);
     this.shipStorage.orientation = 'h';
     this.shipStorage.rootElement.querySelector('#ship-storage').remove();
@@ -88,7 +71,7 @@ class ShipPlaceState extends BaseState {
       this.shipInDrag,
       this.shipStorage.orientation
     );
-    const cells = document.querySelectorAll('#player1-container td');
+    const cells = document.querySelectorAll('game-field my-cell');
     cells.forEach((cell) => {
       cell.removeEventListener('drop', this.dropHandlerRef);
     });
@@ -96,7 +79,7 @@ class ShipPlaceState extends BaseState {
   }
 
   dragEndHandler(event) {
-    const cells = document.querySelectorAll('#player1-container td');
+    const cells = document.querySelectorAll('game-field my-cell');
     cells.forEach((cell) => {
       cell.classList.remove('placement-allowed');
       cell.classList.remove('placement-forbidden');
@@ -113,7 +96,6 @@ class ShipPlaceState extends BaseState {
       this.shipStorage.orientation
     );
     this.shipStorage.decrementShipQuantity(this.shipInDrag);
-    this.view.updateOwnField();
     this.shipStorage.updateDisplay();
   }
 
