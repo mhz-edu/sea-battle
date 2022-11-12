@@ -10,12 +10,11 @@ class GameState extends BaseState {
     this.stateContainer = this.templateParser(`<div>
         <my-text text="You are ${userName}"></my-text>
         <my-text text="Your field"></my-text>
-        <div id="player1-container"></div>
+        <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
         <br>
         <my-text text="Enemy field"></my-text>
-        <div id="player2-container"></div>
+        <game-field size="10" cellContent="def" click="clickHandler" data="playerModel" type="enemy"></game-field>
     </div>`);
-    this.view = new View(this.playerModel, this.stateContainer);
 
     const game = this.createGame(
       this.lastStateParams.gameType,
@@ -26,13 +25,8 @@ class GameState extends BaseState {
 
     this.eventMgr.addListener(game.firstPlayer);
     this.eventMgr.addListener(game.secondPlayer);
-    this.eventMgr.addListener(this.view);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
-
-    this.view.displayAll();
-    this.enemyField = this.gameField.querySelector('#player2-container');
-    this.enemyField.addEventListener('click', this.clickHandler.bind(this));
 
     document.dispatchEvent(new Event('start'));
     document.addEventListener('gameover', this.gameoverHandler);
@@ -40,11 +34,7 @@ class GameState extends BaseState {
 
   createGame(gameType, userRole) {
     const newPlayer = (playerName) => {
-      return new Controller(
-        playerName,
-        this.playerModel,
-        this.playerSelectCell.bind(this)
-      );
+      return new Controller(playerName, this.playerModel);
     };
 
     const game = {

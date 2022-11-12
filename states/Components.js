@@ -8,6 +8,7 @@ class BaseElement extends HTMLElement {
         acc[curr.name] = curr.value;
         return acc;
       }, {});
+      console.log(this.props);
     } else {
       console.log(`${this.localName} constructor with props`);
       this.props = props;
@@ -18,7 +19,7 @@ class BaseElement extends HTMLElement {
       this.parseEventListeners();
     }
     this.template = document.createElement('template');
-    this.init(props);
+    this.init(this.props);
     this.createShadowRoot();
   }
 
@@ -189,6 +190,91 @@ customElements.define(
           this.append(newElement);
         });
       });
+    }
+  }
+);
+
+customElements.define(
+  'game-field',
+  class extends BaseElement {
+    init(props) {
+      console.log(props);
+      this.size = parseInt(props.size);
+      this.cellcontent = props.cellcontent;
+      this.data = props.data;
+      this.type = props.type;
+      this.data.subscribe(this, this.type);
+      this.template.innerHTML = `
+        <style>
+          div {
+            display: grid;
+            grid-template-columns: repeat(${this.size}, 30px);
+            grid-gap: 5px;
+            grid-auto-rows: 30px;
+          }
+        </style>
+        <div>
+          <slot name="cell"></slot>
+        </div>
+    `;
+
+      this.cellTemplate = document.createElement('template');
+      this.cellTemplate.innerHTML = `<my-cell cellContent="${this.cellcontent}"></my-cell>`;
+      this.cellRef = {};
+    }
+
+    connectedCallback() {
+      let rowIndex = 0;
+      for (let row of this.props.data.rows(this.props.type)) {
+        row.forEach((dataCell, colIndex) => {
+          const cell = this.cellTemplate.content.firstChild.cloneNode(true);
+          cell.setAttribute('data-value', `${colIndex}${rowIndex}`);
+          cell.setAttribute('cellcontent', dataCell);
+          cell.setAttribute('slot', 'cell');
+          this.cellRef[`${colIndex}${rowIndex}`] = cell;
+          this.appendChild(cell);
+        });
+        rowIndex++;
+      }
+    }
+
+    notify([val, x, y]) {
+      this.cellRef[`${x}${y}`].ref.innerText = val;
+      if (val === 'H') {
+        this.cellRef[`${x}${y}`].ref.classList.add('hit');
+      } else if (val === 'M') {
+        this.cellRef[`${x}${y}`].ref.classList.add('miss');
+      }
+    }
+  }
+);
+
+customElements.define(
+  'my-cell',
+  class extends BaseElement {
+    init(props) {
+      this.template.innerHTML = `
+      <style> 
+        div {
+          border: 1px solid;
+          box-sizing: border-box;
+          height: 100%
+        }
+        div:hover {
+          background-color: cornflowerblue;
+        }
+        .miss {
+          background-color: lightgoldenrodyellow;
+        }
+        .hit {
+            background-color: lightcoral;
+        }
+      </style>
+      <div class="player" id="cell">${props.cellcontent}</div>`;
+    }
+
+    connectedCallback() {
+      this.ref = this.shadowRoot.querySelector('#cell');
     }
   }
 );

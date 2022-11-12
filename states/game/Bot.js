@@ -16,8 +16,8 @@ class Bot {
   }
 
   botShoot(model) {
-    const processEnemyField = (field) => {
-      return field.flat().reduce((acc, cur, index) => {
+    const processEnemyField = (model) => {
+      return [...model.rows('enemy')].flat().reduce((acc, cur, index) => {
         if (!acc.hasOwnProperty(cur)) {
           acc[cur] = [];
         }
@@ -25,7 +25,7 @@ class Bot {
         return acc;
       }, {});
     };
-    const enemyField = processEnemyField(model.enemyField);
+    const enemyField = processEnemyField(model);
     const potentialTargets = enemyField['?'];
     return potentialTargets[
       Math.floor(Math.random() * potentialTargets.length)
@@ -45,7 +45,7 @@ class Bot {
      *   8. if placement was successful, continue to the next ship, else try to place same ship again
      * If number of tries to place the ship exceeds 10, throw an error
      */
-    const ships = { 1: 4, 2: 3, 3: 2, 4: 1 };
+    const ships = { 1: 4 };
     let tries = 0;
     while (!Object.values(ships).every((val) => val === 0)) {
       let trySuccessful = false;
