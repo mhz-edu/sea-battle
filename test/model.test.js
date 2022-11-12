@@ -166,7 +166,7 @@ describe('Model', () => {
       it(`it should place ${ship} ship correctly`, function () {
         const model = new Model();
         model.placeShip(...ship);
-        chai.expect(model.own).to.deep.equal(expectedField);
+        chai.expect(model._own).to.deep.equal(expectedField);
       });
     });
   });
