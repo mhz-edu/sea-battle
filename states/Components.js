@@ -3,12 +3,11 @@ class BaseElement extends HTMLElement {
     super();
     if (!props) {
       console.log(`${this.localName} constructor without props`);
-      console.log(this.attributes);
+      // console.log(this.attributes);
       this.props = [...this.attributes].reduce((acc, curr) => {
         acc[curr.name] = curr.value;
         return acc;
       }, {});
-      console.log(this.props);
     } else {
       console.log(`${this.localName} constructor with props`);
       this.props = props;
@@ -34,7 +33,7 @@ class BaseElement extends HTMLElement {
   }
 
   parseEventListeners() {
-    const events = ['click'];
+    const events = ['click', 'dragstart', 'dragend'];
     events.forEach((eventType) => {
       if (this.props[eventType]) {
         this.addEventListener(
@@ -275,6 +274,143 @@ customElements.define(
 
     connectedCallback() {
       this.ref = this.shadowRoot.querySelector('#cell');
+    }
+  }
+);
+
+customElements.define(
+  'ship-element',
+  class extends BaseElement {
+    init(props) {
+      this.shipSize = parseInt(props.shipsize);
+      this.orientation = props.orientation;
+      this.template.innerHTML = `
+      <style>
+          div {
+            display: grid;
+            grid-template-columns: repeat(${
+              this.orientation === 'h' ? this.shipSize : 1
+            }, 30px);
+            grid-auto-rows: 30px;
+          }
+      </style>
+       <div>
+          <slot name="cell"></slot>
+       </div>
+    `;
+      this.cellTemplate = document.createElement('template');
+      this.cellTemplate.innerHTML = `<my-cell cellContent="${this.cellcontent}"></my-cell>`;
+      this.setAttribute('draggable', true);
+      this.setAttribute('data-value', this.shipSize);
+    }
+
+    connectedCallback() {
+      Array(this.shipSize)
+        .fill(null)
+        .forEach(() => {
+          const cell = this.cellTemplate.content.firstChild.cloneNode(true);
+          cell.setAttribute('slot', 'cell');
+          cell.setAttribute('cellcontent', 'S');
+          this.appendChild(cell);
+        });
+    }
+
+    notify(val) {
+      if (val === 'h' || val === 'v') {
+        this.orientation = val;
+        this.shadowRoot.querySelector('style').innerText = `
+          div {
+            display: grid;
+            grid-template-columns: repeat(${
+              this.orientation === 'h' ? this.shipSize : 1
+            }, 30px);
+            grid-auto-rows: 30px;
+          }
+        `;
+      }
+    }
+  }
+);
+
+customElements.define(
+  'ship-storage',
+  class extends BaseElement {
+    init(props) {
+      this.data = props.data;
+      this.data.subscribe(this, 'ships');
+      this.data.subscribe(this, 'orientation');
+      this.template.innerHTML = `<div>
+        <slot name="item"></slot>
+        <button>Change orientation</button>
+        </div>`;
+      this.cellTemplate = document.createElement('template');
+      this.cellTemplate.innerHTML = `<ship-storage-cell></ship-storage-cell>`;
+      this.cellRef = {};
+    }
+
+    connectedCallback() {
+      [...this.data.ships].forEach((quantity, shipSize) => {
+        if (quantity > 0) {
+          const cell = this.cellTemplate.content.firstChild.cloneNode(true);
+          cell.setAttribute('shipsize', shipSize);
+          cell.setAttribute('orientation', 'h');
+          cell.setAttribute('quantity', quantity);
+          cell.setAttribute('slot', 'item');
+          this.cellRef[shipSize] = cell;
+          this.appendChild(cell);
+        }
+      });
+    }
+
+    notify(val) {
+      if (val === 'h' || val === 'v') {
+        for (let ship in this.cellRef) {
+          this.cellRef[ship].notify(val);
+        }
+      } else {
+        const [newQuantity, ship] = val;
+        if (newQuantity == 0) {
+          this.cellRef[ship].removeAttribute('slot');
+        } else {
+          this.cellRef[ship].notify(newQuantity);
+        }
+      }
+    }
+  }
+);
+
+customElements.define(
+  'ship-storage-cell',
+  class extends BaseElement {
+    init(props) {
+      this.shipSize = parseInt(props.shipsize);
+      this.orientation = props.orientation;
+      this.quantity = props.quantity;
+      this.template.innerHTML = `<div>
+      <slot name="ship"></slot>
+      <my-text id="quantlable" text="x${this.quantity}"></my-text>
+      </div>`;
+      this.cellTemplate = document.createElement('template');
+      this.cellTemplate.innerHTML = `<ship-element id="ship"></ship-element>`;
+      this.cellRef = { ship: null, quantityLabel: null };
+    }
+
+    connectedCallback() {
+      const cell = this.cellTemplate.content.firstChild.cloneNode(true);
+      cell.setAttribute('shipsize', this.shipSize);
+      cell.setAttribute('orientation', this.orientation);
+      cell.setAttribute('slot', 'ship');
+      this.cellRef.ship = cell;
+      this.cellRef.quantityLabel = this.shadowRoot.querySelector('#quantlable');
+      this.appendChild(cell);
+    }
+
+    notify(val) {
+      if (val === 'h' || val === 'v') {
+        this.cellRef.ship.notify(val);
+      } else {
+        this.cellRef.quantityLabel.notify(`x${val}`);
+      }
     }
   }
 );
