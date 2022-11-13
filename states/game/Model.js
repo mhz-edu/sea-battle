@@ -134,6 +134,14 @@ class Model extends Subscribable {
     this[fieldMark][y][x] = value;
   }
 
+  resetField() {
+    [...this.rows('own')].forEach((row, rowIndex) => {
+      row.forEach((col, colIndex) => {
+        this.updateCell(colIndex, rowIndex, 'E', 'own');
+      });
+    });
+  }
+
   placeShip(x, y, shipSize, shipOrient) {
     let delta = shipSize;
     while (delta > 0) {

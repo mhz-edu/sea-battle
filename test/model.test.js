@@ -326,6 +326,48 @@ describe('Model', () => {
     });
   });
 
+  describe('fieldReset()', () => {
+    const tests = [
+      {
+        desc: 'reset own field that has ships',
+        field: [
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'S', 'S', 'E', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'E', 'E', 'S', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+        ],
+      },
+      {
+        desc: 'reset own field that has no ships',
+        field: [
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+          ['E', 'E', 'E', 'E', 'E'],
+        ],
+      },
+    ];
+
+    const expectedField = [
+      ['E', 'E', 'E', 'E', 'E'],
+      ['E', 'E', 'E', 'E', 'E'],
+      ['E', 'E', 'E', 'E', 'E'],
+      ['E', 'E', 'E', 'E', 'E'],
+      ['E', 'E', 'E', 'E', 'E'],
+    ];
+
+    tests.forEach(({ desc, field }) => {
+      it(`it should correctly ${desc}`, function () {
+        const model = new Model();
+        model.own = field;
+        model.resetField();
+        chai.expect(model.own).to.deep.equal(expectedField);
+      });
+    });
+  });
+
   describe('with Subscribable', () => {
     const tests = [
       {

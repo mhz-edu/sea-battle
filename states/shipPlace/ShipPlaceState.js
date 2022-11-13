@@ -60,11 +60,7 @@ class ShipPlaceState extends BaseState {
   }
 
   fieldResetHandler() {
-    for (let x = 0; x < size; x++) {
-      for (let y = 0; y < size; y++) {
-        this.playerModel.updateCell(x, y, 'E', 'own');
-      }
-    }
+    this.playerModel.resetField();
     this.shipStorage.resetStorage();
   }
 
