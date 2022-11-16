@@ -100,13 +100,23 @@ class Model extends Subscribable {
   }
 
   placeShipRandom(shipSize) {
+    /*Alghoritm description
+     *   1. select random orientation
+     *   2. update mask array -> mark ship cells and cells around ship as blocked for placement
+     * While there are tries and ship is not placed yet:
+     *   3. select random number which will be used as row or column number
+     *   4. break selected row or column into parts available for placement
+     *   5. iterating over parts, select first which length is less or equal to ship size
+     *   6. place ship with random offset inside selcted part, deduct ship from available and break iterating
+     *   7. if placement was successful, stop cycle, else try to place same ship again in another row or column
+     * If number of tries to place the ship exceeds 10, throw an error
+     */
     const orientation = Math.random() >= 0.5 ? 'h' : 'v';
 
     const mask = this.getMask(shipSize, orientation);
 
     let tries = size;
     let trySuccessful = false;
-    let result = [];
     while (!trySuccessful && tries > 0) {
       const randomRowColumn = Math.floor(Math.random() * (size - shipSize));
 
@@ -126,19 +136,13 @@ class Model extends Subscribable {
             orientation
           );
           trySuccessful = true;
-          result.push(
-            start + randomStart,
-            randomRowColumn,
-            shipSize,
-            orientation
-          );
           break;
         }
       }
       tries = tries - 1;
     }
     if (trySuccessful) {
-      return result;
+      return;
     } else {
       throw new Error(`Cannot place ship ${shipSize}`);
     }
