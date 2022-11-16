@@ -16,6 +16,7 @@ class ShipPlaceState extends BaseState {
         <my-text text="Player field"></my-text>
         <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
         <my-list click="processUserSelect">
+          <li slot="item"><my-button title="Place ships randomly" data-value="random"></my-button></li>
           <li slot="item"><my-button title="Reset field" data-value="reset"></my-button></li>
           <li slot="item"><my-button title="Placement complete" data-value="complete"></my-button></li>
         </my-list>
@@ -30,6 +31,7 @@ class ShipPlaceState extends BaseState {
     const options = {
       reset: this.fieldResetHandler,
       complete: this.placementCompleteHandler,
+      random: this.randomPlacementHandler,
     };
     const userSelect = clickEvent.target.dataset.value;
     options[userSelect].call(this);
@@ -62,6 +64,11 @@ class ShipPlaceState extends BaseState {
   fieldResetHandler() {
     this.playerModel.resetField();
     this.shipStorage.resetStorage();
+  }
+
+  randomPlacementHandler() {
+    this.playerModel.randomShipsFill(this.initialShips);
+    this.shipStorage.clearStorage();
   }
 
   dragStartHandler(event) {

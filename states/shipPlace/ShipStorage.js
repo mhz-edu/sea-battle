@@ -1,7 +1,7 @@
 class ShipStorage extends Subscribable {
   constructor(ships, dragStartHandler, dragEndHandler) {
     super();
-    this.initialShips = ships;
+    this.initialShips = Object.assign({}, ships);
     this._orientation = 'h';
     this.dragStartHandler = dragStartHandler;
     this.dragEndHandler = dragEndHandler;
@@ -19,6 +19,15 @@ class ShipStorage extends Subscribable {
 
   decrementShipQuantity(shipSize) {
     this.ships[shipSize] = this.ships[shipSize] - 1;
+  }
+
+  clearStorage() {
+    console.log('clearing');
+    this._ships.forEach((val, index) => {
+      if (index !== 0) {
+        this.ships[index] = 0;
+      }
+    });
   }
 
   resetStorage() {
