@@ -369,8 +369,15 @@ customElements.define(
         }
       } else {
         const [newQuantity, ship] = val;
+        const oldQuantity = this.cellRef[ship].getAttribute('quantity');
         if (newQuantity == 0) {
           this.cellRef[ship].removeAttribute('slot');
+          this.cellRef[ship].setAttribute('quantity', newQuantity);
+        }
+        if (oldQuantity == 0 && newQuantity > 0) {
+          this.cellRef[ship].setAttribute('slot', 'item');
+          this.cellRef[ship].setAttribute('quantity', newQuantity);
+          this.cellRef[ship].notify(newQuantity);
         } else {
           this.cellRef[ship].notify(newQuantity);
         }
