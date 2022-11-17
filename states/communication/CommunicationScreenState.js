@@ -5,8 +5,7 @@ class CommunicationScreenState extends BaseState {
     this.lastStateParams = params;
     this.peerId = this.comm.inititialize();
     this._cs = ' ';
-    this.subs = { connectionStatus: [] };
-    this.subscribable = ['connectionStatus'];
+    this.createProp('_cs', 'connectionStatus');
     const userRoleTemplate = {
       main: `<loader-container>
               <my-text slot="content" text="Comunicate this id to another player"></my-text>
@@ -30,15 +29,6 @@ class CommunicationScreenState extends BaseState {
           </my-list>
         <div>
       `);
-  }
-
-  get connectionStatus() {
-    return this._cs;
-  }
-
-  set connectionStatus(status) {
-    this._cs = status;
-    this.subs['connectionStatus'].forEach((sub) => sub.notify(status));
   }
 
   connectHandler(event) {

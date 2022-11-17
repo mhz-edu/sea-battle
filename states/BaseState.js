@@ -1,5 +1,6 @@
-class BaseState {
+class BaseState extends Subscribable {
   constructor(app) {
+    super();
     this.appContainer = app;
     this.stateContainer = null;
     this.templateParser = utils.templateParser.bind(this);

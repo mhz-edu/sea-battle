@@ -90,9 +90,9 @@ const utils = {
         const newElement = new (customElements.get(
           currentNode.tagName.toLocaleLowerCase()
         ))(props);
-        subscribeTo.forEach((propName) =>
-          props.context.subs[propName].push(newElement)
-        );
+        subscribeTo.forEach((propName) => {
+          props.context.subscribe(newElement, propName);
+        });
         newElement.append(...currentNode.childNodes);
 
         currentNode.replaceWith(newElement);

@@ -1,6 +1,7 @@
 class Subscribable {
   constructor() {
     this.subs = {};
+    this.subscribable = [];
   }
 
   subscribe(sub, prop) {
@@ -21,6 +22,7 @@ class Subscribable {
         this.subs[newPropName].forEach((sub) => sub.notify(val));
       },
     });
+    this.subscribable.push(newPropName);
   }
 
   createArrayProp(sourcePropName, newPropName) {
@@ -42,6 +44,7 @@ class Subscribable {
     Object.defineProperty(this[newPropName], Symbol.iterator, {
       value: () => this[sourcePropName][Symbol.iterator](),
     });
+    this.subscribable.push(newPropName);
   }
 
   createMatrixProp(sourcePropName, newPropName) {
@@ -80,5 +83,6 @@ class Subscribable {
     Object.defineProperty(this[newPropName], Symbol.iterator, {
       value: () => this[sourcePropName][Symbol.iterator](),
     });
+    this.subscribable.push(newPropName);
   }
 }
