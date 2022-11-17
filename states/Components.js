@@ -47,6 +47,14 @@ class BaseElement extends HTMLElement {
   createShadowRoot() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.appendChild(this.template.content);
+    shadowRoot.appendChild(this.createBaseStyleElement());
+  }
+
+  createBaseStyleElement() {
+    const style = document.createElement('style');
+    style.innerText =
+      '@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";';
+    return style;
   }
 }
 
@@ -78,8 +86,8 @@ customElements.define(
     init(props) {
       this.title = props.title;
       this.template.innerHTML = `
-          <div>
-              <button>${this.title}</button>
+          <div class="block">
+              <button class="button is-link is-fullwidth">${this.title}</button>
           </div>
           `;
     }
