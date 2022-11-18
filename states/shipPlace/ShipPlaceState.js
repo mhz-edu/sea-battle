@@ -13,16 +13,33 @@ class ShipPlaceState extends BaseState {
     };
     this.stateContainer = this.templateParser(`
       <div>
-        <my-text text="Player field"></my-text>
-        <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
-        <my-list click="processUserSelect">
-          <li slot="item"><my-button title="Place ships randomly" data-value="random"></my-button></li>
-          <li slot="item"><my-button title="Reset field" data-value="reset"></my-button></li>
-          <li slot="item"><my-button title="Placement complete" data-value="complete"></my-button></li>
-        </my-list>
-        <my-text text="Drag and drop ships to the game field"></my-text>
-        <ship-storage data="shipStorage", dragstart="dragStartHandler" dragend="dragEndHandler" click="changeOrientationHandler"></ship-storage>
-        
+        <div class="hero is-link">
+          <div class="hero-body title">
+            <my-text text="Place the ships"></my-text>
+          </div>
+        </div>
+        <div class="container section">
+          <div class="columns">
+            <div class="column">
+              <div class="panel">
+                <div class="panel-heading">
+                  <my-text text="Player field"></my-text>
+                </div>
+                <div class="panel-block">
+                  <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
+                </div>
+              </div>
+            </div>
+            <div class="column">
+              <my-list click="processUserSelect">
+                <li slot="item"><my-button title="Place ships randomly" data-value="random"></my-button></li>
+                <li slot="item"><my-button color="is-success" title="Placement complete" data-value="complete"></my-button></li>
+                <li slot="item"><my-button color="is-danger" title="Reset field" data-value="reset"></my-button></li>
+              </my-list>
+            </div>
+          </div>
+          <ship-storage data="shipStorage", dragstart="dragStartHandler" dragend="dragEndHandler" click="changeOrientationHandler"></ship-storage>
+        </div>
       </div>
     `);
   }
@@ -74,7 +91,11 @@ class ShipPlaceState extends BaseState {
   dragStartHandler(event) {
     console.log(event);
     this.shipInDrag = parseInt(event.target.dataset.value);
-    event.dataTransfer.setDragImage(event.target, 13, 13);
+    event.dataTransfer.setDragImage(
+      event.target.shadowRoot.querySelector('.cell'),
+      13,
+      13
+    );
     const mask = this.playerModel.getMask(
       this.shipInDrag,
       this.shipStorage.orientation

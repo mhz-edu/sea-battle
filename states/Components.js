@@ -87,7 +87,9 @@ customElements.define(
       this.title = props.title;
       this.template.innerHTML = `
           <div class="block">
-              <button class="button is-link is-fullwidth">${this.title}</button>
+              <button class="button ${
+                props.color ? props.color : 'is-link'
+              } is-fullwidth">${this.title}</button>
           </div>
           `;
     }
@@ -294,17 +296,27 @@ customElements.define(
       this.orientation = props.orientation;
       this.template.innerHTML = `
       <style>
-          div {
+          .wrapper {
+            display: flex;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            align-items: center;
+          }
+          .cell {
             display: grid;
             grid-template-columns: repeat(${
               this.orientation === 'h' ? this.shipSize : 1
             }, 30px);
             grid-auto-rows: 30px;
+            justify-content: center;
           }
       </style>
-       <div>
+      <div class="wrapper">
+        <div class="cell">
           <slot name="cell"></slot>
-       </div>
+        </div>
+      </div>
     `;
       this.cellTemplate = document.createElement('template');
       this.cellTemplate.innerHTML = `<my-cell cellContent="${this.cellcontent}"></my-cell>`;
@@ -326,15 +338,13 @@ customElements.define(
     notify(val) {
       if (val === 'h' || val === 'v') {
         this.orientation = val;
-        this.shadowRoot.querySelector('style').innerText = `
-          div {
-            display: grid;
-            grid-template-columns: repeat(${
-              this.orientation === 'h' ? this.shipSize : 1
-            }, 30px);
-            grid-auto-rows: 30px;
-          }
-        `;
+        this.shadowRoot.styleSheets
+          .item(0)
+          .cssRules.item(1)
+          .style.setProperty(
+            'grid-template-columns',
+            `repeat(${this.orientation === 'h' ? this.shipSize : 1}, 30px)`
+          );
       }
     }
   }
@@ -347,12 +357,24 @@ customElements.define(
       this.data = props.data;
       this.data.subscribe(this, 'ships');
       this.data.subscribe(this, 'orientation');
-      this.template.innerHTML = `<div>
-        <slot name="item"></slot>
-        <button>Change orientation</button>
-        </div>`;
+      this.template.innerHTML = `
+      <div class="panel">
+        <div class="panel-heading">
+          <my-text text="Drag and drop ships to the game field"></my-text>
+        </div>
+        <div class="panel-block">
+          <div class="section"> 
+            <div class="tile is-ancestor">
+              <slot name="item"></slot>
+            </div>
+          </div>
+        </div>
+        <div class="panel-block">
+          <button class="button">Change orientation</button>
+        </div>
+      </div>`;
       this.cellTemplate = document.createElement('template');
-      this.cellTemplate.innerHTML = `<ship-storage-cell></ship-storage-cell>`;
+      this.cellTemplate.innerHTML = `<ship-storage-cell class="tile is-parent"></ship-storage-cell>`;
       this.cellRef = {};
     }
 
@@ -401,9 +423,16 @@ customElements.define(
       this.shipSize = parseInt(props.shipsize);
       this.orientation = props.orientation;
       this.quantity = props.quantity;
-      this.template.innerHTML = `<div>
-      <slot name="ship"></slot>
-      <my-text id="quantlable" text="x${this.quantity}"></my-text>
+      this.template.innerHTML = `
+      <div class="box">
+        <div class="block">
+          <slot name="ship"></slot>
+        </div>
+        <div class="block">
+          <div class="tag is-link is-large">
+            <my-text id="quantlable" text="x${this.quantity}"></my-text>
+          </div>
+        </div>
       </div>`;
       this.cellTemplate = document.createElement('template');
       this.cellTemplate.innerHTML = `<ship-element id="ship"></ship-element>`;
