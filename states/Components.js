@@ -18,6 +18,7 @@ class BaseElement extends HTMLElement {
       this.parseEventListeners();
     }
     this.template = document.createElement('template');
+    this.needExternalStyles = false;
     this.init(this.props);
     this.createShadowRoot();
   }
@@ -47,7 +48,9 @@ class BaseElement extends HTMLElement {
   createShadowRoot() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.appendChild(this.template.content);
-    shadowRoot.appendChild(this.createBaseStyleElement());
+    if (this.needExternalStyles) {
+      shadowRoot.appendChild(this.createBaseStyleElement());
+    }
   }
 
   createBaseStyleElement() {
@@ -84,6 +87,7 @@ customElements.define(
   'my-button',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.title = props.title;
       this.template.innerHTML = `
           <div class="block">
@@ -100,6 +104,7 @@ customElements.define(
   'input-and-button',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.title = props.title;
       this.template.innerHTML = `
           <div>
@@ -130,6 +135,7 @@ customElements.define(
   'my-list',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.template.innerHTML = `<div>
           <ul><slot name="item"></slot></ul>
           </div>`;
@@ -356,6 +362,7 @@ customElements.define(
   'ship-storage',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.data = props.data;
       this.data.subscribe(this, 'ships');
       this.data.subscribe(this, 'orientation');
@@ -372,7 +379,7 @@ customElements.define(
           </div>
         </div>
         <div class="panel-block">
-          <button class="button">Change orientation</button>
+          <button class="button is-link">Change orientation</button>
         </div>
       </div>`;
       this.cellTemplate = document.createElement('template');
@@ -422,6 +429,7 @@ customElements.define(
   'ship-storage-cell',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.shipSize = parseInt(props.shipsize);
       this.orientation = props.orientation;
       this.quantity = props.quantity;
