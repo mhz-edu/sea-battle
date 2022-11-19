@@ -102,10 +102,12 @@ customElements.define(
     init(props) {
       this.title = props.title;
       this.template.innerHTML = `
-            <div>
-                <input id="main"></input>
-                <button>${this.title}</button>
+          <div>
+            <div class="level">
+                <input class="input level-item" id="main"></input>
+                <button class="button is-link level-item">${this.title}</button>
             </div>
+          </div>
             `;
     }
 
