@@ -114,6 +114,7 @@ class ShipPlaceState extends BaseState {
     cells.forEach((cell) => {
       cell.classList.remove('placement-allowed');
       cell.classList.remove('placement-forbidden');
+      cell.classList.remove('cell-select');
       Object.entries(this.handlerRef).forEach(([eventType, handler]) => {
         cell.removeEventListener(eventType, handler);
       });

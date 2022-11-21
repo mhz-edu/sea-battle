@@ -225,9 +225,13 @@ customElements.define(
         <style>
           div {
             display: grid;
-            grid-template-columns: repeat(${this.size}, 30px);
+            grid-template-columns: repeat(${this.size}, 1fr);
+            grid-template-rows: repeat(${this.size}, 1fr);
             grid-gap: 5px;
-            grid-auto-rows: 30px;
+            aspect-ratio: 1/1;
+          }
+          :host {
+            width: 100%;
           }
         </style>
         <div>
@@ -248,6 +252,7 @@ customElements.define(
           cell.setAttribute('data-value', `${colIndex}${rowIndex}`);
           cell.setAttribute('cellcontent', dataCell);
           cell.setAttribute('slot', 'cell');
+          cell.setAttribute('hover', this.props.type === 'enemy');
           this.cellRef[`${colIndex}${rowIndex}`] = cell;
           this.appendChild(cell);
         });
@@ -256,11 +261,14 @@ customElements.define(
     }
 
     notify([val, x, y]) {
-      this.cellRef[`${x}${y}`].ref.innerText = val;
+      console.log(val);
+      // this.cellRef[`${x}${y}`].ref.innerText = val;
       if (val === 'H') {
         this.cellRef[`${x}${y}`].ref.classList.add('hit');
       } else if (val === 'M') {
         this.cellRef[`${x}${y}`].ref.classList.add('miss');
+      } else if (val === 'S') {
+        this.cellRef[`${x}${y}`].ref.classList.add('ship');
       }
     }
   }
@@ -274,20 +282,28 @@ customElements.define(
       <style> 
         div {
           border: 1px solid;
+          border-color: black;
           box-sizing: border-box;
-          height: 100%
+          height: 100%;
         }
-        div:hover {
-          background-color: cornflowerblue;
+        ${
+          props.hover === 'true'
+            ? `div:hover {
+                background-color: hsl(204, 86%, 53%);
+              }`
+            : ''
         }
         .miss {
-          background-color: lightgoldenrodyellow;
+          background-color: hsl(0, 0%, 71%);
         }
         .hit {
-            background-color: lightcoral;
+          background-color: hsl(348, 100%, 61%);
+        }
+        .ship {
+          background-color: hsl(217, 71%, 53%);
         }
       </style>
-      <div class="player" id="cell">${props.cellcontent}</div>`;
+      <div id="cell"></div>`;
     }
 
     connectedCallback() {
@@ -318,6 +334,9 @@ customElements.define(
             }, 30px);
             grid-auto-rows: 30px;
             justify-content: center;
+          }
+          .cell:hover {
+            background-color: hsl(204, 86%, 53%);
           }
       </style>
       <div class="wrapper">
