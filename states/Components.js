@@ -18,6 +18,7 @@ class BaseElement extends HTMLElement {
       this.parseEventListeners();
     }
     this.template = document.createElement('template');
+    this.needExternalStyles = false;
     this.init(this.props);
     this.createShadowRoot();
   }
@@ -47,6 +48,16 @@ class BaseElement extends HTMLElement {
   createShadowRoot() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     shadowRoot.appendChild(this.template.content);
+    if (this.needExternalStyles) {
+      shadowRoot.appendChild(this.createBaseStyleElement());
+    }
+  }
+
+  createBaseStyleElement() {
+    const style = document.createElement('style');
+    style.innerText =
+      '@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";';
+    return style;
   }
 }
 
@@ -76,10 +87,13 @@ customElements.define(
   'my-button',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.title = props.title;
       this.template.innerHTML = `
-          <div>
-              <button>${this.title}</button>
+          <div class="block">
+              <button class="button ${
+                props.color ? props.color : 'is-link'
+              } is-fullwidth">${this.title}</button>
           </div>
           `;
     }
@@ -90,12 +104,15 @@ customElements.define(
   'input-and-button',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.title = props.title;
       this.template.innerHTML = `
-            <div>
-                <input id="main"></input>
-                <button>${this.title}</button>
+          <div>
+            <div class="level">
+                <input class="input level-item" id="main"></input>
+                <button class="button is-link level-item">${this.title}</button>
             </div>
+          </div>
             `;
     }
 
@@ -118,6 +135,7 @@ customElements.define(
   'my-list',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.template.innerHTML = `<div>
           <ul><slot name="item"></slot></ul>
           </div>`;
@@ -207,9 +225,13 @@ customElements.define(
         <style>
           div {
             display: grid;
-            grid-template-columns: repeat(${this.size}, 30px);
+            grid-template-columns: repeat(${this.size}, 1fr);
+            grid-template-rows: repeat(${this.size}, 1fr);
             grid-gap: 5px;
-            grid-auto-rows: 30px;
+            aspect-ratio: 1/1;
+          }
+          :host {
+            width: 100%;
           }
         </style>
         <div>
@@ -230,6 +252,7 @@ customElements.define(
           cell.setAttribute('data-value', `${colIndex}${rowIndex}`);
           cell.setAttribute('cellcontent', dataCell);
           cell.setAttribute('slot', 'cell');
+          cell.setAttribute('hover', this.props.type === 'enemy');
           this.cellRef[`${colIndex}${rowIndex}`] = cell;
           this.appendChild(cell);
         });
@@ -238,11 +261,14 @@ customElements.define(
     }
 
     notify([val, x, y]) {
-      this.cellRef[`${x}${y}`].ref.innerText = val;
+      console.log(val);
+      // this.cellRef[`${x}${y}`].ref.innerText = val;
       if (val === 'H') {
         this.cellRef[`${x}${y}`].ref.classList.add('hit');
       } else if (val === 'M') {
         this.cellRef[`${x}${y}`].ref.classList.add('miss');
+      } else if (val === 'S') {
+        this.cellRef[`${x}${y}`].ref.classList.add('ship');
       }
     }
   }
@@ -256,20 +282,28 @@ customElements.define(
       <style> 
         div {
           border: 1px solid;
+          border-color: black;
           box-sizing: border-box;
-          height: 100%
+          height: 100%;
         }
-        div:hover {
-          background-color: cornflowerblue;
+        ${
+          props.hover === 'true'
+            ? `div:hover {
+                background-color: hsl(204, 86%, 53%);
+              }`
+            : ''
         }
         .miss {
-          background-color: lightgoldenrodyellow;
+          background-color: hsl(0, 0%, 71%);
         }
         .hit {
-            background-color: lightcoral;
+          background-color: hsl(348, 100%, 61%);
+        }
+        .ship {
+          background-color: hsl(217, 71%, 53%);
         }
       </style>
-      <div class="player" id="cell">${props.cellcontent}</div>`;
+      <div id="cell"></div>`;
     }
 
     connectedCallback() {
@@ -286,17 +320,30 @@ customElements.define(
       this.orientation = props.orientation;
       this.template.innerHTML = `
       <style>
-          div {
+          .wrapper {
+            display: flex;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            align-items: center;
+          }
+          .cell {
             display: grid;
             grid-template-columns: repeat(${
               this.orientation === 'h' ? this.shipSize : 1
             }, 30px);
             grid-auto-rows: 30px;
+            justify-content: center;
+          }
+          .cell:hover {
+            background-color: hsl(204, 86%, 53%);
           }
       </style>
-       <div>
+      <div class="wrapper">
+        <div class="cell">
           <slot name="cell"></slot>
-       </div>
+        </div>
+      </div>
     `;
       this.cellTemplate = document.createElement('template');
       this.cellTemplate.innerHTML = `<my-cell cellContent="${this.cellcontent}"></my-cell>`;
@@ -318,15 +365,13 @@ customElements.define(
     notify(val) {
       if (val === 'h' || val === 'v') {
         this.orientation = val;
-        this.shadowRoot.querySelector('style').innerText = `
-          div {
-            display: grid;
-            grid-template-columns: repeat(${
-              this.orientation === 'h' ? this.shipSize : 1
-            }, 30px);
-            grid-auto-rows: 30px;
-          }
-        `;
+        this.shadowRoot.styleSheets
+          .item(0)
+          .cssRules.item(1)
+          .style.setProperty(
+            'grid-template-columns',
+            `repeat(${this.orientation === 'h' ? this.shipSize : 1}, 30px)`
+          );
       }
     }
   }
@@ -336,15 +381,28 @@ customElements.define(
   'ship-storage',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.data = props.data;
       this.data.subscribe(this, 'ships');
       this.data.subscribe(this, 'orientation');
-      this.template.innerHTML = `<div>
-        <slot name="item"></slot>
-        <button>Change orientation</button>
-        </div>`;
+      this.template.innerHTML = `
+      <div class="panel">
+        <div class="panel-heading">
+          <my-text text="Drag and drop ships to the game field"></my-text>
+        </div>
+        <div class="panel-block">
+          <div class="section"> 
+            <div class="tile is-ancestor">
+              <slot name="item"></slot>
+            </div>
+          </div>
+        </div>
+        <div class="panel-block">
+          <button class="button is-link">Change orientation</button>
+        </div>
+      </div>`;
       this.cellTemplate = document.createElement('template');
-      this.cellTemplate.innerHTML = `<ship-storage-cell></ship-storage-cell>`;
+      this.cellTemplate.innerHTML = `<ship-storage-cell class="tile is-parent"></ship-storage-cell>`;
       this.cellRef = {};
     }
 
@@ -390,12 +448,20 @@ customElements.define(
   'ship-storage-cell',
   class extends BaseElement {
     init(props) {
+      this.needExternalStyles = true;
       this.shipSize = parseInt(props.shipsize);
       this.orientation = props.orientation;
       this.quantity = props.quantity;
-      this.template.innerHTML = `<div>
-      <slot name="ship"></slot>
-      <my-text id="quantlable" text="x${this.quantity}"></my-text>
+      this.template.innerHTML = `
+      <div class="box">
+        <div class="block">
+          <slot name="ship"></slot>
+        </div>
+        <div class="block">
+          <div class="tag is-link is-large">
+            <my-text id="quantlable" text="x${this.quantity}"></my-text>
+          </div>
+        </div>
       </div>`;
       this.cellTemplate = document.createElement('template');
       this.cellTemplate.innerHTML = `<ship-element id="ship"></ship-element>`;

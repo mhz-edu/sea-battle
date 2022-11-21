@@ -7,13 +7,39 @@ class GameState extends BaseState {
 
     const userName =
       this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2';
-    this.stateContainer = this.templateParser(`<div>
-        <my-text text="You are ${userName}"></my-text>
-        <my-text text="Your field"></my-text>
-        <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
-        <br>
-        <my-text text="Enemy field"></my-text>
-        <game-field size="10" cellContent="def" click="clickHandler" data="playerModel" type="enemy"></game-field>
+    this.stateContainer = this.templateParser(`
+    <div>
+      <div class="hero is-link">
+        <div class="hero-body title">
+          <my-text text="Game"></my-text>
+          <div class="subtitle">
+            <my-text text="You are ${userName}"></my-text>
+          </div>
+        </div>
+      </div>
+      <div class="container section">
+        <div class="columns">
+          <div class="column">
+            <div class="panel">
+              <div class="panel-heading">
+                <my-text text="Your field"></my-text>
+              </div>
+              <div class="panel-block">
+                <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="panel">
+              <div class="panel-heading">
+                <my-text text="Enemy field"></my-text>
+              </div>
+              <div class="panel-block">
+                <game-field size="10" cellContent="def" click="clickHandler" data="playerModel" type="enemy"></game-field>
+              </div>
+          </div>
+        </div>
+      </div>  
     </div>`);
 
     const game = this.createGame(
