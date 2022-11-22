@@ -97,13 +97,16 @@ class GameState extends BaseState {
 
   clickHandler(event) {
     const [x, y] = event.target.dataset.value.split('');
-    const clickEvent = new CustomEvent('playerCellSelect', {
-      detail: {
-        playerName:
-          this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2',
-        coords: { x, y },
-      },
-    });
-    this.eventMgr.eventNotifier(clickEvent);
+    console.log(this.playerModel.enemy[x][y]);
+    if (this.playerModel.enemy[y][x] === '?') {
+      const clickEvent = new CustomEvent('playerCellSelect', {
+        detail: {
+          playerName:
+            this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2',
+          coords: { x, y },
+        },
+      });
+      this.eventMgr.eventNotifier(clickEvent);
+    }
   }
 }

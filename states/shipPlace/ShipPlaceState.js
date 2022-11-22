@@ -45,13 +45,15 @@ class ShipPlaceState extends BaseState {
   }
 
   processUserSelect(clickEvent) {
-    const options = {
-      reset: this.fieldResetHandler,
-      complete: this.placementCompleteHandler,
-      random: this.randomPlacementHandler,
-    };
-    const userSelect = clickEvent.target.dataset.value;
-    options[userSelect].call(this);
+    if (clickEvent.path[0].localName === 'button') {
+      const options = {
+        reset: this.fieldResetHandler,
+        complete: this.placementCompleteHandler,
+        random: this.randomPlacementHandler,
+      };
+      const userSelect = clickEvent.target.dataset.value;
+      options[userSelect].call(this);
+    }
   }
 
   changeOrientationHandler(event) {
