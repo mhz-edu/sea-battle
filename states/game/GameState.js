@@ -4,6 +4,8 @@ class GameState extends BaseState {
     this.lastStateParams = params;
     this.playerModel = this.lastStateParams.playerModel;
     this.comm = this.lastStateParams.commObj;
+    this._gameStatus = 'Starting the game...';
+    this.createProp('_gameStatus', 'gameStatus');
 
     const userName =
       this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2';
@@ -17,27 +19,37 @@ class GameState extends BaseState {
           </div>
         </div>
       </div>
-      <div class="container section">
-        <div class="columns">
-          <div class="column">
-            <div class="panel">
-              <div class="panel-heading">
-                <my-text text="Your field"></my-text>
-              </div>
-              <div class="panel-block">
-                <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
+      <div class="container is-max-widescreen">
+        <div class="section">
+          <div class="columns">
+            <div class="column">
+              <div class="panel">
+                <div class="panel-heading">
+                  <my-text text="Your field"></my-text>
+                </div>
+                <div class="panel-block">
+                  <game-field size="10" cellContent="def" data="playerModel" type="own"></game-field>
+                </div>
               </div>
             </div>
+            <div class="column">
+              <div class="panel">
+                <div class="panel-heading">
+                  <my-text text="Enemy field"></my-text>
+                </div>
+                <div class="panel-block">
+                  <game-field size="10" cellContent="def" click="clickHandler" data="playerModel" type="enemy"></game-field>
+                </div>
+            </div>
           </div>
-          <div class="column">
-            <div class="panel">
-              <div class="panel-heading">
-                <my-text text="Enemy field"></my-text>
-              </div>
-              <div class="panel-block">
-                <game-field size="10" cellContent="def" click="clickHandler" data="playerModel" type="enemy"></game-field>
-              </div>
-          </div>
+        </div>
+        <div class="panel">
+            <div class="panel-heading">
+              <my-text text="Game status"></my-text>
+            </div>
+            <div class="panel-block">
+              <my-text text="gameStatus"></my-text>
+            </div>
         </div>
       </div>  
     </div>`);
@@ -47,15 +59,22 @@ class GameState extends BaseState {
       this.lastStateParams.userRole
     );
 
-    const logic = new GameLogic(game.firstPlayer, game.secondPlayer);
+    const logic = new GameLogic(game.firstPlayer, game.secondPlayer, {
+      context: this,
+      ref: 'gameStatus',
+    });
 
     this.eventMgr.addListener(game.firstPlayer);
     this.eventMgr.addListener(game.secondPlayer);
     this.eventMgr.addListener(logic);
     this.eventMgr.initialize();
 
-    document.dispatchEvent(new Event('start'));
     document.addEventListener('gameover', this.gameoverHandler);
+  }
+
+  display() {
+    super.display();
+    document.dispatchEvent(new Event('start'));
   }
 
   createGame(gameType, userRole) {
