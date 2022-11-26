@@ -390,13 +390,20 @@ customElements.define(
       this.data.subscribe(this, 'ships');
       this.data.subscribe(this, 'orientation');
       this.template.innerHTML = `
+      <style>
+        .my-tile {
+          display: flex;
+          flex-flow: row nowrap;
+          gap: 5px 5px;
+        }
+      </style>
       <div class="panel">
         <div class="panel-heading">
           <my-text text="Drag and drop ships to the game field"></my-text>
         </div>
         <div class="panel-block">
-          <div class="section"> 
-            <div class="tile is-ancestor">
+          <div> 
+            <div class="my-tile">
               <slot name="item"></slot>
             </div>
           </div>
@@ -406,7 +413,7 @@ customElements.define(
         </div>
       </div>`;
       this.cellTemplate = document.createElement('template');
-      this.cellTemplate.innerHTML = `<ship-storage-cell class="tile is-parent"></ship-storage-cell>`;
+      this.cellTemplate.innerHTML = `<ship-storage-cell></ship-storage-cell>`;
       this.cellRef = {};
     }
 

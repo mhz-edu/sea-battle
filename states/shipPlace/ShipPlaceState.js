@@ -21,6 +21,16 @@ class ShipPlaceState extends BaseState {
         <div class="container section">
           <div class="columns">
             <div class="column">
+              <ship-storage data="shipStorage", dragstart="dragStartHandler" dragend="dragEndHandler" click="changeOrientationHandler"></ship-storage>
+              <div>
+                <my-list click="processUserSelect">
+                  <li slot="item"><my-button title="Place ships randomly" data-value="random"></my-button></li>
+                  <li slot="item"><my-button color="is-success" title="Placement complete" data-value="complete"></my-button></li>
+                  <li slot="item"><my-button color="is-danger" title="Reset field" data-value="reset"></my-button></li>
+                </my-list>
+              </div>
+            </div>
+            <div class="column">
               <div class="panel">
                 <div class="panel-heading">
                   <my-text text="Player field"></my-text>
@@ -30,15 +40,7 @@ class ShipPlaceState extends BaseState {
                 </div>
               </div>
             </div>
-            <div class="column">
-              <my-list click="processUserSelect">
-                <li slot="item"><my-button title="Place ships randomly" data-value="random"></my-button></li>
-                <li slot="item"><my-button color="is-success" title="Placement complete" data-value="complete"></my-button></li>
-                <li slot="item"><my-button color="is-danger" title="Reset field" data-value="reset"></my-button></li>
-              </my-list>
-            </div>
           </div>
-          <ship-storage data="shipStorage", dragstart="dragStartHandler" dragend="dragEndHandler" click="changeOrientationHandler"></ship-storage>
         </div>
       </div>
     `);
@@ -90,13 +92,44 @@ class ShipPlaceState extends BaseState {
     this.shipStorage.clearStorage();
   }
 
+  createShipDragImage(shipSize, orientation) {
+    const gameFieldGridGap = 5;
+    const cellSize = document
+      .querySelector('game-field')
+      .querySelector('my-cell').clientWidth;
+    const singleShipCell = document.createElement('canvas');
+    const ctx = singleShipCell.getContext('2d');
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, cellSize, cellSize);
+
+    const shipImage = document.createElement('canvas');
+    shipImage.setAttribute('style', 'position: absolute; top: -100%;');
+    const shipImageCtx = shipImage.getContext('2d');
+    for (let num = 0; num < shipSize; num++) {
+      if (orientation === 'h') {
+        shipImageCtx.drawImage(
+          singleShipCell,
+          cellSize * num + gameFieldGridGap * num,
+          0
+        );
+      } else {
+        shipImageCtx.drawImage(
+          singleShipCell,
+          0,
+          cellSize * num + gameFieldGridGap * num
+        );
+      }
+    }
+    document.body.appendChild(shipImage);
+    return [shipImage, Math.floor(cellSize / 2), Math.floor(cellSize / 2)];
+  }
+
   dragStartHandler(event) {
     console.log(event);
     this.shipInDrag = parseInt(event.target.dataset.value);
     event.dataTransfer.setDragImage(
-      event.target.shadowRoot.querySelector('.cell'),
-      13,
-      13
+      ...this.createShipDragImage(this.shipInDrag, this.shipStorage.orientation)
     );
     const mask = this.playerModel.getMask(
       this.shipInDrag,
@@ -121,6 +154,7 @@ class ShipPlaceState extends BaseState {
         cell.removeEventListener(eventType, handler);
       });
     });
+    document.querySelector('canvas').remove();
   }
 
   dropHandler(event) {
