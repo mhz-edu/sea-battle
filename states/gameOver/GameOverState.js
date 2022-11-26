@@ -25,6 +25,6 @@ class GameOverState extends BaseState {
   }
 
   processUserSelect() {
-    stateMachine.change('menu');
+    STATE_MACHINE.change('menu');
   }
 }

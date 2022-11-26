@@ -273,6 +273,8 @@ customElements.define(
         this.cellRef[`${x}${y}`].ref.classList.add('miss');
       } else if (val === 'S') {
         this.cellRef[`${x}${y}`].ref.classList.add('ship');
+      } else if (val === 'E') {
+        this.cellRef[`${x}${y}`].ref.classList.remove('ship');
       }
     }
   }

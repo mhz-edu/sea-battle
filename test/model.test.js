@@ -1,4 +1,4 @@
-const size = 5;
+const GAMEFIELD_SIZE = 5;
 
 describe('Model', () => {
   describe('getMask()', () => {

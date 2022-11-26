@@ -14,15 +14,20 @@ const utils = {
     coordsMatrix.forEach(([dx, dy]) => {
       const getX = x + dx;
       const getY = y + dy;
-      if (getX >= 0 && getX < size && getY >= 0 && getY < size) {
+      if (
+        getX >= 0 &&
+        getX < GAMEFIELD_SIZE &&
+        getY >= 0 &&
+        getY < GAMEFIELD_SIZE
+      ) {
         mask[x + dx][y + dy] = false;
       }
     });
   },
 
   updateFieldMask(field, mask) {
-    for (let row = 0; row < size; row++) {
-      for (let col = 0; col < size; col++) {
+    for (let row = 0; row < GAMEFIELD_SIZE; row++) {
+      for (let col = 0; col < GAMEFIELD_SIZE; col++) {
         if (field[row][col] === 'S') {
           utils.markAroundShipCell(row, col, mask);
         }

@@ -1,8 +1,9 @@
-const size = 10;
+const GAMEFIELD_SIZE = 10;
+const INITIAL_SHIPS = { 1: 4, 2: 3, 3: 2, 4: 1 };
 
 const app = document.querySelector('#app');
 
-const stateMachine = new StateMachine({
+const STATE_MACHINE = new StateMachine({
   menu: () => new MenuState(app),
   ships: () => new ShipPlaceState(app),
   comms: () => new CommunicationScreenState(app),
@@ -10,4 +11,4 @@ const stateMachine = new StateMachine({
   gameover: () => new GameOverState(app),
 });
 
-stateMachine.change('menu');
+STATE_MACHINE.change('menu');

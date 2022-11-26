@@ -66,21 +66,23 @@ class CommunicationScreenState extends BaseState {
   processUserSelect() {
     clearTimeout(this.stateChangeTimer);
     this.comm.cancelConnection();
-    stateMachine.change('menu');
+    STATE_MACHINE.change('menu');
   }
 
   connectionCallBack() {
+    const CONNECTION_MESSAGE_DURATION = 1000;
+    const GAMESTART_MESSAGE_DURATION = 3000;
     if (this.comm.connection) {
       this.connectionStatus = 'connection established';
       this.stateChangeTimer = setTimeout(() => {
         this.connectionStatus = 'Staring the game...';
         this.stateChangeTimer = setTimeout(() => {
-          stateMachine.change('game', {
+          STATE_MACHINE.change('game', {
             commObj: this.comm,
             ...this.lastStateParams,
           });
-        }, 3000);
-      }, 1000);
+        }, GAMESTART_MESSAGE_DURATION);
+      }, CONNECTION_MESSAGE_DURATION);
     } else {
       this.connectionStatus = `Something went wrong. Please restart`;
     }

@@ -2,7 +2,6 @@ class Communication {
   constructor(connectionCallback) {
     this.peer = null;
     this.connection = null;
-    // this.peerId = null;
     this.connectionCallback = connectionCallback;
   }
 
@@ -14,7 +13,6 @@ class Communication {
         resolve(id);
       });
     });
-    // this.peerId = await open;
     this.peer.on('connection', (newConnection) => {
       if (this.connection) {
         newConnection.on('open', () => {

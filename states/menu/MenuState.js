@@ -26,7 +26,7 @@ class MenuState extends BaseState {
         multiConn: { userRole: 'second', gameType: 'multi' },
       };
       const userSelect = clickEvent.target.dataset.value;
-      stateMachine.change('ships', options[userSelect]);
+      STATE_MACHINE.change('ships', options[userSelect]);
     }
   }
 }

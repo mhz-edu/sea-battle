@@ -5,8 +5,8 @@ class EventManager {
     this.handler = this.eventNotifier.bind(this);
   }
 
-  addListener(listener) {
-    this.listeners.push(listener);
+  addListeners(...listeners) {
+    this.listeners.push(...listeners);
   }
 
   removeListener(listener) {

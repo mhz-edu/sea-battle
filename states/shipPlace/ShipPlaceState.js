@@ -67,12 +67,12 @@ class ShipPlaceState extends BaseState {
   placementCompleteHandler() {
     if (this.shipStorage.isStorageEmpty()) {
       if (this.lastStateParams.gameType === 'single') {
-        stateMachine.change('game', {
+        STATE_MACHINE.change('game', {
           playerModel: this.playerModel,
           ...this.lastStateParams,
         });
       } else if (this.lastStateParams.gameType === 'multi') {
-        stateMachine.change('comms', {
+        STATE_MACHINE.change('comms', {
           playerModel: this.playerModel,
           ...this.lastStateParams,
         });

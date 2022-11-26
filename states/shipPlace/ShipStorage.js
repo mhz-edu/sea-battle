@@ -1,7 +1,7 @@
 class ShipStorage extends Subscribable {
   constructor(ships, dragStartHandler, dragEndHandler) {
     super();
-    this.initialShips = Object.assign({}, ships);
+    this.initialShips = { ...INITIAL_SHIPS };
     this._orientation = 'h';
     this.dragStartHandler = dragStartHandler;
     this.dragEndHandler = dragEndHandler;

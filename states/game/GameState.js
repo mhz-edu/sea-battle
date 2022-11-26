@@ -64,9 +64,7 @@ class GameState extends BaseState {
       ref: 'gameStatus',
     });
 
-    this.eventMgr.addListener(game.firstPlayer);
-    this.eventMgr.addListener(game.secondPlayer);
-    this.eventMgr.addListener(logic);
+    this.eventMgr.addListeners(game.firstPlayer, game.secondPlayer, logic);
     this.eventMgr.initialize();
 
     document.addEventListener('gameover', this.gameoverHandler);
@@ -105,7 +103,7 @@ class GameState extends BaseState {
   }
 
   gameoverHandler({ detail: { outcome } }) {
-    stateMachine.change('gameover', outcome);
+    STATE_MACHINE.change('gameover', outcome);
   }
 
   exit() {

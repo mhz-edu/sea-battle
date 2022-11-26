@@ -1,16 +1,17 @@
 class Bot {
   constructor() {
+    const BOT_TURN_DURATION = 1000;
     this.botModel = new Model();
 
     // Place bot ships
-    this.botModel.randomShipsFill({ 1: 4, 2: 3, 3: 2, 4: 1 });
+    this.botModel.randomShipsFill({ ...INITIAL_SHIPS });
 
     this.botController = new Controller('Bot', this.botModel, () => {
       console.log('inside bot select cell');
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(this.botShoot(this.botModel));
-        }, 1000);
+        }, BOT_TURN_DURATION);
       });
     });
   }
@@ -21,7 +22,10 @@ class Bot {
         if (!acc.hasOwnProperty(cur)) {
           acc[cur] = [];
         }
-        acc[cur].push([index % size, Math.floor(index / size)]);
+        acc[cur].push([
+          index % GAMEFIELD_SIZE,
+          Math.floor(index / GAMEFIELD_SIZE),
+        ]);
         return acc;
       }, {});
     };
