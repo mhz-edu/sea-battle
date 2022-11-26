@@ -255,6 +255,9 @@ customElements.define(
           cell.setAttribute('hover', this.props.type === 'enemy');
           this.cellRef[`${colIndex}${rowIndex}`] = cell;
           this.appendChild(cell);
+          if (dataCell === 'S') {
+            cell.ref.classList.add('ship');
+          }
         });
         rowIndex++;
       }
@@ -264,6 +267,7 @@ customElements.define(
       console.log(val);
       // this.cellRef[`${x}${y}`].ref.innerText = val;
       if (val === 'H') {
+        this.cellRef[`${x}${y}`].ref.classList.remove('ship');
         this.cellRef[`${x}${y}`].ref.classList.add('hit');
       } else if (val === 'M') {
         this.cellRef[`${x}${y}`].ref.classList.add('miss');
