@@ -1,7 +1,10 @@
-class ShipStorage extends Subscribable {
+import Subscribable from '../../Subscribable';
+import config from '../../config';
+
+export default class ShipStorage extends Subscribable {
   constructor(ships, dragStartHandler, dragEndHandler) {
     super();
-    this.initialShips = { ...INITIAL_SHIPS };
+    this.initialShips = { ...config.INITIAL_SHIPS };
     this._orientation = 'h';
     this.dragStartHandler = dragStartHandler;
     this.dragEndHandler = dragEndHandler;

@@ -1,4 +1,4 @@
-class StateMachine {
+export default class StateMachine {
   constructor(states) {
     this.emptyState = { enter() {}, exit() {}, display() {} };
     this.states = states;

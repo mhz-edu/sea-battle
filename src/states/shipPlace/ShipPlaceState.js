@@ -1,4 +1,8 @@
-class ShipPlaceState extends BaseState {
+import BaseState from '../BaseState';
+import ShipStorage from './ShipStorage';
+import Model from '../game/Model';
+
+export default class ShipPlaceState extends BaseState {
   init(params) {
     this.lastStateParams = params;
     this.playerModel = new Model();

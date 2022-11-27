@@ -1,4 +1,6 @@
-class CommunicationScreenState extends BaseState {
+import BaseState from '../BaseState';
+
+export default class CommunicationScreenState extends BaseState {
   init(params) {
     this.comm = new Communication(this.connectionCallBack.bind(this));
     this.stateChangeTimer = null;

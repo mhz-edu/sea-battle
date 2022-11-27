@@ -1,4 +1,4 @@
-class GameLogic {
+export default class GameLogic {
   constructor(firstPlayer, secondPlayer, statusMessageRef) {
     this.firstPlayer = firstPlayer;
     this.secondPlayer = secondPlayer;

@@ -1,4 +1,4 @@
-class EventManager {
+export default class EventManager {
   constructor() {
     this.listeners = [];
     this.events = ['start', 'shot', 'shotResult', 'turnEnd'];

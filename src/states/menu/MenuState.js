@@ -1,4 +1,6 @@
-class MenuState extends BaseState {
+import BaseState from '../BaseState';
+
+export default class MenuState extends BaseState {
   init() {
     this.stateContainer = this.templateParser(`
       <div>

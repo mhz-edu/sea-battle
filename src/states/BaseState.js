@@ -1,9 +1,12 @@
-class BaseState extends Subscribable {
+import Subscribable from '../Subscribable';
+import { templateParser } from '../utils';
+
+export default class BaseState extends Subscribable {
   constructor(app) {
     super();
     this.appContainer = app;
     this.stateContainer = null;
-    this.templateParser = utils.templateParser.bind(this);
+    this.templateParser = templateParser.bind(this);
   }
 
   init() {}

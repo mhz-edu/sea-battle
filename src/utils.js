@@ -1,4 +1,6 @@
-const utils = {
+import config from './config';
+
+module.exports = {
   markAroundShipCell(x, y, mask) {
     const coordsMatrix = [
       [-1, -1],
@@ -16,9 +18,9 @@ const utils = {
       const getY = y + dy;
       if (
         getX >= 0 &&
-        getX < GAMEFIELD_SIZE &&
+        getX < config.GAMEFIELD_SIZE &&
         getY >= 0 &&
-        getY < GAMEFIELD_SIZE
+        getY < config.GAMEFIELD_SIZE
       ) {
         mask[x + dx][y + dy] = false;
       }
@@ -26,8 +28,8 @@ const utils = {
   },
 
   updateFieldMask(field, mask) {
-    for (let row = 0; row < GAMEFIELD_SIZE; row++) {
-      for (let col = 0; col < GAMEFIELD_SIZE; col++) {
+    for (let row = 0; row < config.GAMEFIELD_SIZE; row++) {
+      for (let col = 0; col < config.GAMEFIELD_SIZE; col++) {
         if (field[row][col] === 'S') {
           utils.markAroundShipCell(row, col, mask);
         }

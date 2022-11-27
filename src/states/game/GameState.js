@@ -1,4 +1,11 @@
-class GameState extends BaseState {
+import BaseState from '../BaseState';
+import EventManager from './EventManager';
+import GameLogic from './GameLogic';
+import Controller from './Controller';
+import Bot from './Bot';
+import networkPlayer from './NetworkPlayer';
+
+export default class GameState extends BaseState {
   init(params) {
     this.eventMgr = new EventManager();
     this.lastStateParams = params;

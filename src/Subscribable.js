@@ -1,4 +1,4 @@
-class Subscribable {
+export default class Subscribable {
   constructor() {
     this.subs = {};
     this.subscribable = [];

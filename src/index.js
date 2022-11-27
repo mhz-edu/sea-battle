@@ -1,5 +1,9 @@
-const GAMEFIELD_SIZE = 10;
-const INITIAL_SHIPS = { 1: 4, 2: 3, 3: 2, 4: 1 };
+import StateMachine from './StateMachine';
+import MenuState from './states/menu/MenuState';
+import ShipPlaceState from './states/shipPlace/ShipPlaceState';
+import CommunicationScreenState from './states/communication/CommunicationScreenState';
+import GameState from './states/game/GameState';
+import GameOverState from './states/gameOver/GameOverState';
 
 const app = document.querySelector('#app');
 

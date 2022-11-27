@@ -1,4 +1,6 @@
-class Communication {
+import Peer from 'peerjs';
+
+export default class Communication {
   constructor(connectionCallback) {
     this.peer = null;
     this.connection = null;
