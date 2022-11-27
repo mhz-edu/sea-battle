@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <style>
+            .cell-select {
+                border-color: blue;
+                border-style: solid;
+                border-width: 3px;
+            }
+            .placement-allowed {
+                background-color: green;
+                opacity: 0.5;
+            }
+            .placement-forbidden {
+                background-color: red;
+                opacity: 0.5;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+        
+        <script src="states/utils.js"></script>
+        <script src="states/StateMachine.js"></script>
+        <script src="states/Subscribable.js"></script>
+        <script src="states/BaseState.js"></script>
+        <script src="states/Components.js"></script>
+        <script src="states/menu/MenuState.js"></script>
+        <script src="states/shipPlace/ShipPlaceState.js"></script>
+        <script src="states/shipPlace/ShipStorage.js"></script>
+        <script src="states/communication/Communication.js"></script>
+        <script src="states/communication/CommunicationScreenState.js"></script>
+        <script src="states/game/Model.js"></script>
+        <script src="states/game/Controller.js"></script>
+        <script src="states/game/EventManager.js"></script>
+        <script src="states/game/GameLogic.js"></script>
+        <script src="states/game/GameState.js"></script>
+        <script src="states/game/NetworkPlayer.js"></script>
+        <script src="states/game/Bot.js"></script>
+        <script src="states/gameOver/GameOverState.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>
