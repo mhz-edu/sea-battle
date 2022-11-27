@@ -1,5 +1,5 @@
 import Model from './Model';
-import config from '../../config';
+import { GAMEFIELD_SIZE, INITIAL_SHIPS } from '../../config';
 
 export default class Bot {
   constructor() {
@@ -7,7 +7,7 @@ export default class Bot {
     this.botModel = new Model();
 
     // Place bot ships
-    this.botModel.randomShipsFill({ ...config.INITIAL_SHIPS });
+    this.botModel.randomShipsFill({ ...INITIAL_SHIPS });
 
     this.botController = new Controller('Bot', this.botModel, () => {
       console.log('inside bot select cell');
@@ -26,8 +26,8 @@ export default class Bot {
           acc[cur] = [];
         }
         acc[cur].push([
-          index % config.GAMEFIELD_SIZE,
-          Math.floor(index / config.GAMEFIELD_SIZE),
+          index % GAMEFIELD_SIZE,
+          Math.floor(index / GAMEFIELD_SIZE),
         ]);
         return acc;
       }, {});
