@@ -1,6 +1,7 @@
 import BaseState from '../BaseState';
 import ShipStorage from './ShipStorage';
 import Model from '../game/Model';
+import { STATE_MACHINE } from '../../index';
 
 export default class ShipPlaceState extends BaseState {
   init(params) {

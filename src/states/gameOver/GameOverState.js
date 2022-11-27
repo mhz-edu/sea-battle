@@ -1,4 +1,5 @@
 import BaseState from '../BaseState';
+import { STATE_MACHINE } from '../../index';
 
 export default class GameOverState extends BaseState {
   init(params) {

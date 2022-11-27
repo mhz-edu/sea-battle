@@ -7,7 +7,7 @@ import GameOverState from './states/gameOver/GameOverState';
 
 const app = document.querySelector('#app');
 
-const STATE_MACHINE = new StateMachine({
+export const STATE_MACHINE = new StateMachine({
   menu: () => new MenuState(app),
   ships: () => new ShipPlaceState(app),
   comms: () => new CommunicationScreenState(app),

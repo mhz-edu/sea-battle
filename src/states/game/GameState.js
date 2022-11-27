@@ -4,6 +4,7 @@ import GameLogic from './GameLogic';
 import Controller from './Controller';
 import Bot from './Bot';
 import networkPlayer from './NetworkPlayer';
+import { STATE_MACHINE } from '../../index';
 
 export default class GameState extends BaseState {
   init(params) {

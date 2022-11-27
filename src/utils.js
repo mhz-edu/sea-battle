@@ -30,7 +30,7 @@ export function updateFieldMask(field, mask) {
   for (let row = 0; row < GAMEFIELD_SIZE; row++) {
     for (let col = 0; col < GAMEFIELD_SIZE; col++) {
       if (field[row][col] === 'S') {
-        utils.markAroundShipCell(row, col, mask);
+        markAroundShipCell(row, col, mask);
       }
     }
   }

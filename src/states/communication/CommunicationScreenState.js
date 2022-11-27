@@ -1,4 +1,5 @@
 import BaseState from '../BaseState';
+import { STATE_MACHINE } from '../../index';
 
 export default class CommunicationScreenState extends BaseState {
   init(params) {
