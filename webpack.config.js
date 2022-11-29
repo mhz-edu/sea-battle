@@ -1,7 +1,7 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
-module.exports = {
+const config = {
   mode: "development",
   entry: ["./src/assets/style.scss", "./src/Components.js", "./src/index.js"],
   devtool: "inline-source-map",
@@ -20,3 +20,5 @@ module.exports = {
     new MiniCssExtractPlugin(),
   ],
 };
+
+export default config;

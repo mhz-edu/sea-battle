@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Sea battle\r ===\r Simple sea battle game - [Play](https://mhz-edu.github.io/sea-battle/)",
   "main": "index.js",
+  "type": "module",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,9 +22,11 @@
   },
   "homepage": "https://github.com/mhz-edu/sea-battle#readme",
   "devDependencies": {
+    "chai": "^4.3.7",
     "css-loader": "^6.7.2",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.7.0",
+    "mocha": "^10.1.0",
     "sass": "^1.56.1",
     "sass-loader": "^13.2.0",
     "webpack": "^5.75.0",

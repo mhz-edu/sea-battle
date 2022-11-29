@@ -1,10 +1,10 @@
-import BaseState from '../BaseState';
-import EventManager from './EventManager';
-import GameLogic from './GameLogic';
-import Controller from './Controller';
-import Bot from './Bot';
-import networkPlayer from './NetworkPlayer';
-import { STATE_MACHINE } from '../../index';
+import BaseState from '../BaseState.js';
+import EventManager from './EventManager.js';
+import GameLogic from './GameLogic.js';
+import Controller from './Controller.js';
+import Bot from './Bot.js';
+import networkPlayer from './NetworkPlayer.js';
+import { STATE_MACHINE } from '../../index.js';
 
 export default class GameState extends BaseState {
   init(params) {

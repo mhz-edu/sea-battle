@@ -1,5 +1,5 @@
-import Subscribable from '../Subscribable';
-import { templateParser } from '../utils';
+import Subscribable from '../Subscribable.js';
+import { templateParser } from '../utils.js';
 
 export default class BaseState extends Subscribable {
   constructor(app) {

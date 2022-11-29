@@ -1,5 +1,5 @@
-import BaseState from '../BaseState';
-import { STATE_MACHINE } from '../../index';
+import BaseState from '../BaseState.js';
+import { STATE_MACHINE } from '../../index.js';
 
 export default class MenuState extends BaseState {
   init() {

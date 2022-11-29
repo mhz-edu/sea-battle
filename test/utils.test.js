@@ -1,4 +1,7 @@
-describe('utils getEmptyCellsInRow()', () => {
+import * as chai from "chai";
+import { getEmptyCellsInRow } from "../src/utils.js";
+
+describe("utils getEmptyCellsInRow()", () => {
   const tests = [
     {
       row: [true, true, true],
@@ -84,7 +87,7 @@ describe('utils getEmptyCellsInRow()', () => {
 
   tests.forEach(({ row, expectedMap }) => {
     it(`should return correct empty cells for the row with ${expectedMap.length} empty part(s)`, () => {
-      const emptyCellsMap = utils.getEmptyCellsInRow(row);
+      const emptyCellsMap = getEmptyCellsInRow(row);
 
       chai.expect(emptyCellsMap).to.deep.equal(expectedMap);
     });

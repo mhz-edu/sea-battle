@@ -1,4 +1,4 @@
-import { GAMEFIELD_SIZE } from './config';
+import { GAMEFIELD_SIZE } from './config.js';
 
 export function markAroundShipCell(x, y, mask) {
   const coordsMatrix = [
@@ -21,19 +21,11 @@ export function markAroundShipCell(x, y, mask) {
       getY >= 0 &&
       getY < GAMEFIELD_SIZE
     ) {
-      mask[x + dx][y + dy] = false;
+      try {
+        mask[x + dx][y + dy] = false;
+      } catch (error) {}
     }
   });
-}
-
-export function updateFieldMask(field, mask) {
-  for (let row = 0; row < GAMEFIELD_SIZE; row++) {
-    for (let col = 0; col < GAMEFIELD_SIZE; col++) {
-      if (field[row][col] === 'S') {
-        markAroundShipCell(row, col, mask);
-      }
-    }
-  }
 }
 
 export function getEmptyCellsInRow(rowArray) {

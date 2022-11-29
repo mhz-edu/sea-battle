@@ -1,9 +1,9 @@
-import StateMachine from './StateMachine';
-import MenuState from './states/menu/MenuState';
-import ShipPlaceState from './states/shipPlace/ShipPlaceState';
-import CommunicationScreenState from './states/communication/CommunicationScreenState';
-import GameState from './states/game/GameState';
-import GameOverState from './states/gameOver/GameOverState';
+import StateMachine from './StateMachine.js';
+import MenuState from './states/menu/MenuState.js';
+import ShipPlaceState from './states/shipPlace/ShipPlaceState.js';
+import CommunicationScreenState from './states/communication/CommunicationScreenState.js';
+import GameState from './states/game/GameState.js';
+import GameOverState from './states/gameOver/GameOverState.js';
 
 const app = document.querySelector('#app');
 
