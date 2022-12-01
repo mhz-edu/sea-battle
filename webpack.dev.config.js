@@ -5,6 +5,9 @@ const config = {
   mode: "development",
   entry: ["./src/assets/style.scss", "./src/Components.js", "./src/index.js"],
   devtool: "inline-source-map",
+  devServer: {
+    static: false,
+  },
   module: {
     rules: [
       {
