@@ -2,14 +2,13 @@ class BaseElement extends HTMLElement {
   constructor(props) {
     super();
     if (!props) {
-      console.log(`${this.localName} constructor without props`);
-      // console.log(this.attributes);
+      // console.log(`${this.localName} constructor without props`);
       this.props = [...this.attributes].reduce((acc, curr) => {
         acc[curr.name] = curr.value;
         return acc;
       }, {});
     } else {
-      console.log(`${this.localName} constructor with props`);
+      // console.log(`${this.localName} constructor with props`);
       this.props = props;
       if (this.props.slot) {
         this.setAttribute('slot', this.props.slot);
@@ -214,7 +213,6 @@ customElements.define(
   'game-field',
   class extends BaseElement {
     init(props) {
-      console.log(props);
       this.size = parseInt(props.size);
       this.cellcontent = props.cellcontent;
       this.data = props.data;
@@ -263,8 +261,6 @@ customElements.define(
     }
 
     notify([val, x, y]) {
-      console.log(val);
-      // this.cellRef[`${x}${y}`].ref.innerText = val;
       if (val === 'H') {
         this.cellRef[`${x}${y}`].ref.classList.remove('ship');
         this.cellRef[`${x}${y}`].ref.classList.add('hit');

@@ -132,7 +132,6 @@ export default class ShipPlaceState extends BaseState {
   }
 
   dragStartHandler(event) {
-    console.log(event);
     this.shipInDrag = parseInt(event.target.dataset.value);
     event.dataTransfer.setDragImage(
       ...this.createShipDragImage(this.shipInDrag, this.shipStorage.orientation)
@@ -164,7 +163,6 @@ export default class ShipPlaceState extends BaseState {
   }
 
   dropHandler(event) {
-    console.log(this.shipInDrag);
     event.preventDefault();
     const [x, y] = event.target.dataset.value.split('').map((n) => parseInt(n));
     this.playerModel.placeShip(

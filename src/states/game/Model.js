@@ -15,9 +15,6 @@ export default class Model extends Subscribable {
     this.createMatrixProp('_own', 'own');
     this.createMatrixProp('_enemy', 'enemy');
 
-    this.ownField = this.own;
-    this.enemyField = this.enemy;
-
     this.rows = function* (fieldMark) {
       yield* this[fieldMark];
     };
@@ -63,7 +60,6 @@ export default class Model extends Subscribable {
   }
 
   placeShip(x, y, shipSize, shipOrient) {
-    // console.log(...arguments);
     let delta = shipSize;
     while (delta > 0) {
       this.updateCell(x, y, 'S', 'own');

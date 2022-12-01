@@ -25,7 +25,6 @@ export default class ShipStorage extends Subscribable {
   }
 
   clearStorage() {
-    console.log('clearing');
     this._ships.forEach((val, index) => {
       if (index !== 0) {
         this.ships[index] = 0;

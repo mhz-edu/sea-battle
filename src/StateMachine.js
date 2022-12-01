@@ -6,7 +6,7 @@ export default class StateMachine {
   }
 
   change(stateName, params) {
-    console.log(`changing state to ${stateName}`);
+    // console.log(`changing state to ${stateName}`);
     this.current.exit();
     this.current = this.states[stateName]();
     this.current.enter(params);

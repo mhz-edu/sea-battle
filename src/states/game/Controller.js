@@ -51,7 +51,6 @@ export default class Controller {
 
   async turn() {
     const [x, y] = await this.selectCell();
-    console.log('selected', x, y);
     this.shoot(x, y);
   }
 

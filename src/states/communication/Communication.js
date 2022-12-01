@@ -42,7 +42,6 @@ export default class Communication {
 
   connect(id) {
     if (!this.connection) {
-      console.log('connect handler');
       this.connection = this.peer.connect(id, { serialization: 'json' });
       this.connection.on('open', () => {
         console.log('connected');

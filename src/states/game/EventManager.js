@@ -14,19 +14,16 @@ export default class EventManager {
   }
 
   initialize() {
-    console.log('initialize event mgr');
     for (let event of this.events) {
       document.addEventListener(event, this.handler);
     }
   }
 
   eventNotifier(event) {
-    console.log(event);
     this.listeners.forEach((listener) => listener.notify(event));
   }
 
   destroy() {
-    console.log('removing event listeners');
     for (let event of this.events) {
       document.removeEventListener(event, this.handler);
     }

@@ -11,7 +11,6 @@ export default class Bot {
     this.botModel.randomShipsFill({ ...INITIAL_SHIPS });
 
     this.botController = new Controller('Bot', this.botModel, () => {
-      console.log('inside bot select cell');
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(this.botShoot(this.botModel));

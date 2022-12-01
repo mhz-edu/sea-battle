@@ -13,11 +13,11 @@ export default class Subscribable {
     this.subs[newPropName] = [];
     Object.defineProperty(this, newPropName, {
       get: () => {
-        console.log(`getter${sourcePropName}`);
+        // console.log(`getter${sourcePropName}`);
         return this[sourcePropName];
       },
       set: (val) => {
-        console.log(`setter${sourcePropName}`);
+        // console.log(`setter${sourcePropName}`);
         this[sourcePropName] = val;
         this.subs[newPropName].forEach((sub) => sub.notify(val));
       },
@@ -31,11 +31,11 @@ export default class Subscribable {
     this[sourcePropName].forEach((element, index) => {
       Object.defineProperty(this[newPropName], `${index}`, {
         get: () => {
-          console.log(`getter${element}`);
+          // console.log(`getter${element}`);
           return this[sourcePropName][index];
         },
         set: (val) => {
-          console.log(`setter${element}`);
+          // console.log(`setter${element}`);
           this[sourcePropName][index] = val;
           this.subs[newPropName].forEach((sub) => sub.notify([val, index]));
         },

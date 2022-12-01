@@ -36,7 +36,6 @@ export default class GameLogic {
 
   notify(event) {
     if (event.type === 'start') {
-      console.log(this.statusMessageRef);
       this.updatedStatusMessage(`${this.firstPlayer.playerName} turn...`);
       this.firstPlayer.turn();
     } else if (this.isRegularTurn(event)) {

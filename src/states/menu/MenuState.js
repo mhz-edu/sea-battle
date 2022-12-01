@@ -3,7 +3,6 @@ import { STATE_MACHINE } from '../../index.js';
 
 export default class MenuState extends BaseState {
   init() {
-    console.log(this.templateParser);
     this.stateContainer = this.templateParser(`
       <div>
         <div class="hero is-link">
@@ -23,7 +22,6 @@ export default class MenuState extends BaseState {
   }
 
   processUserSelect(clickEvent) {
-    console.log(clickEvent);
     if (clickEvent.path[0].localName === 'button') {
       const options = {
         newGame: { userRole: 'main', gameType: 'single' },
