@@ -1,4 +1,4 @@
-class networkPlayer {
+export default class networkPlayer {
   constructor(playerName, comm) {
     this.playerName = playerName;
     this.comm = comm;

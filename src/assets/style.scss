@@ -1,0 +1,16 @@
+@charset "utf-8";
+@import "../../node_modules/bulma/bulma.sass";
+
+.cell-select {
+    border-color: blue;
+    border-style: solid;
+    border-width: 3px;
+}
+.placement-allowed {
+    background-color: green;
+    opacity: 0.5;
+}
+.placement-forbidden {
+    background-color: red;
+    opacity: 0.5;
+}

@@ -1,7 +1,11 @@
-class Bot {
+import Model from './Model.js';
+import Controller from './Controller.js';
+import { GAMEFIELD_SIZE, INITIAL_SHIPS } from '../../config.js';
+
+export default class Bot {
   constructor() {
     const BOT_TURN_DURATION = 1000;
-    this.botModel = new Model();
+    this.botModel = new Model(GAMEFIELD_SIZE);
 
     // Place bot ships
     this.botModel.randomShipsFill({ ...INITIAL_SHIPS });

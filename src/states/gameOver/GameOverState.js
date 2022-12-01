@@ -1,4 +1,7 @@
-class GameOverState extends BaseState {
+import BaseState from '../BaseState.js';
+import { STATE_MACHINE } from '../../index.js';
+
+export default class GameOverState extends BaseState {
   init(params) {
     const resultText = params === 'tie' ? 'Tie' : `${params} Loses!`;
     this.stateContainer = this.templateParser(`

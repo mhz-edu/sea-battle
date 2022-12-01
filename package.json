@@ -1,0 +1,42 @@
+{
+  "name": "sea-battle",
+  "version": "1.0.0",
+  "description": "Sea battle\r ===\r Simple sea battle game - [Play](https://mhz-edu.github.io/sea-battle/)",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "build": "webpack --config webpack.prod.config.js",
+    "dev": "webpack serve --config webpack.dev.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhz-edu/sea-battle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mhz-edu/sea-battle/issues"
+  },
+  "homepage": "https://github.com/mhz-edu/sea-battle#readme",
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "css-loader": "^6.7.2",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.0",
+    "mocha": "^10.1.0",
+    "sass": "^1.56.1",
+    "sass-loader": "^13.2.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "bulma": "^0.9.4",
+    "peerjs": "^1.4.7"
+  }
+}

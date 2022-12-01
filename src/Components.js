@@ -55,8 +55,7 @@ class BaseElement extends HTMLElement {
 
   createBaseStyleElement() {
     const style = document.createElement('style');
-    style.innerText =
-      '@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";';
+    style.innerText = '@import "./main.css";';
     return style;
   }
 }

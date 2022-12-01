@@ -1,7 +1,13 @@
-class ShipPlaceState extends BaseState {
+import BaseState from '../BaseState.js';
+import ShipStorage from './ShipStorage.js';
+import Model from '../game/Model.js';
+import { STATE_MACHINE } from '../../index.js';
+import { GAMEFIELD_SIZE } from '../../config.js';
+
+export default class ShipPlaceState extends BaseState {
   init(params) {
     this.lastStateParams = params;
-    this.playerModel = new Model();
+    this.playerModel = new Model(GAMEFIELD_SIZE);
     this.initialShips = { 1: 4, 2: 3, 3: 2, 4: 1 };
     this.shipStorage = new ShipStorage(this.initialShips);
 

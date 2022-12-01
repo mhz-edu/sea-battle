@@ -1,4 +1,4 @@
-class Controller {
+export default class Controller {
   constructor(playerName, model, selectCell) {
     this.model = model;
     this.playerName = playerName;

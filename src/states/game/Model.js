@@ -1,12 +1,16 @@
-class Model extends Subscribable {
-  constructor() {
+import Subscribable from '../../Subscribable.js';
+import { getEmptyCellsInRow, markAroundShipCell } from '../../utils.js';
+
+export default class Model extends Subscribable {
+  constructor(gameFieldSize) {
     super();
-    this._own = Array(GAMEFIELD_SIZE)
+    this.gameFieldSize = gameFieldSize;
+    this._own = Array(this.gameFieldSize)
       .fill(null)
-      .map(() => Array(GAMEFIELD_SIZE).fill('E'));
-    this._enemy = Array(GAMEFIELD_SIZE)
+      .map(() => Array(this.gameFieldSize).fill('E'));
+    this._enemy = Array(this.gameFieldSize)
       .fill(null)
-      .map(() => Array(GAMEFIELD_SIZE).fill('?'));
+      .map(() => Array(this.gameFieldSize).fill('?'));
 
     this.createMatrixProp('_own', 'own');
     this.createMatrixProp('_enemy', 'enemy');
@@ -19,18 +23,18 @@ class Model extends Subscribable {
     };
 
     this.cols = function* (fieldMark) {
-      for (let colIndex = 0; colIndex < GAMEFIELD_SIZE; colIndex++) {
+      for (let colIndex = 0; colIndex < this.gameFieldSize; colIndex++) {
         const col = [];
-        for (let rowIndex = 0; rowIndex < GAMEFIELD_SIZE; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < this.gameFieldSize; rowIndex++) {
           col.push(this[fieldMark][rowIndex][colIndex]);
         }
         yield col;
       }
     };
 
-    this._mask = Array(GAMEFIELD_SIZE)
+    this._mask = Array(this.gameFieldSize)
       .fill(null)
-      .map(() => Array(GAMEFIELD_SIZE).fill(true));
+      .map(() => Array(this.gameFieldSize).fill(true));
   }
 
   checkCell(x, y) {
@@ -73,13 +77,23 @@ class Model extends Subscribable {
     this.resetMask();
   }
 
+  updateFieldMask() {
+    for (let row = 0; row < this.gameFieldSize; row++) {
+      for (let col = 0; col < this.gameFieldSize; col++) {
+        if (this.own[row][col] === 'S') {
+          markAroundShipCell(row, col, this._mask);
+        }
+      }
+    }
+  }
+
   getMask(shipSize, shipOrient) {
-    utils.updateFieldMask(this.own, this._mask);
+    this.updateFieldMask();
 
     const rowCol = shipOrient === 'h' ? 'rows' : 'cols';
     let lineIndex = 0;
     for (let line of this[rowCol]('_mask')) {
-      const emptyCellsMap = utils.getEmptyCellsInRow(line);
+      const emptyCellsMap = getEmptyCellsInRow(line);
       emptyCellsMap.forEach(({ start, end, length }) => {
         if (length < shipSize) {
           for (let i = start; i <= end; i++) {
@@ -95,9 +109,9 @@ class Model extends Subscribable {
   }
 
   resetMask() {
-    this._mask = Array(GAMEFIELD_SIZE)
+    this._mask = Array(this.gameFieldSize)
       .fill(null)
-      .map(() => Array(GAMEFIELD_SIZE).fill(true));
+      .map(() => Array(this.gameFieldSize).fill(true));
   }
 
   getPossibleplacements(shipSize) {
@@ -110,7 +124,7 @@ class Model extends Subscribable {
     orientations.forEach(({ orientation, rowCol }) => {
       const mask = this.getMask(shipSize, orientation);
       [...this[rowCol]('_mask')].forEach((line, lineIndex) => {
-        const emptyCellsMap = utils.getEmptyCellsInRow(line);
+        const emptyCellsMap = getEmptyCellsInRow(line);
         emptyCellsMap.forEach(({ start, end, length }) => {
           for (
             let placeStart = start;
