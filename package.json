@@ -1,7 +1,7 @@
 {
   "name": "sea-battle",
   "version": "1.0.0",
-  "description": "Sea battle\r ===\r Simple sea battle game - [Play](https://mhz-edu.github.io/sea-battle/)",
+  "description": "Simple sea battle game",
   "main": "index.js",
   "type": "module",
   "directories": {
@@ -19,9 +19,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mhz-edu/sea-battle/issues"
-  },
   "homepage": "https://github.com/mhz-edu/sea-battle#readme",
   "devDependencies": {
     "chai": "^4.3.7",
