@@ -53,7 +53,7 @@ export default class ShipPlaceState extends BaseState {
   }
 
   processUserSelect(clickEvent) {
-    if (clickEvent.path[0].localName === 'button') {
+    if (clickEvent.composedPath()[0].localName === 'button') {
       const options = {
         reset: this.fieldResetHandler,
         complete: this.placementCompleteHandler,
@@ -65,7 +65,7 @@ export default class ShipPlaceState extends BaseState {
   }
 
   changeOrientationHandler(event) {
-    if (event.path[0].localName === 'button') {
+    if (event.composedPath()[0].localName === 'button') {
       this.shipStorage.toggleOrientation();
     }
   }

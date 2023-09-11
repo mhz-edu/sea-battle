@@ -122,7 +122,7 @@ customElements.define(
           clearTimeout(timerId);
         }
         timerId = setTimeout(() => {
-          this.props.context.input = event.path[0].value;
+          this.props.context.input = this.ref.value;
         }, 500);
       });
     }

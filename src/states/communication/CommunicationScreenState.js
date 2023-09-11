@@ -1,5 +1,6 @@
 import BaseState from '../BaseState.js';
 import { STATE_MACHINE } from '../../index.js';
+import Communication from './Communication.js';
 
 export default class CommunicationScreenState extends BaseState {
   init(params) {
@@ -61,7 +62,7 @@ export default class CommunicationScreenState extends BaseState {
   }
 
   connectHandler(event) {
-    if (event.path[0].localName === 'button') {
+    if (event.composedPath()[0].localName === 'button') {
       this.comm.connect(this.input);
     }
   }

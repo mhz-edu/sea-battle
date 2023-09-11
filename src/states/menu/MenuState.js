@@ -22,7 +22,7 @@ export default class MenuState extends BaseState {
   }
 
   processUserSelect(clickEvent) {
-    if (clickEvent.path[0].localName === 'button') {
+    if (clickEvent.composedPath()[0].localName === 'button') {
       const options = {
         newGame: { userRole: 'main', gameType: 'single' },
         multiStart: { userRole: 'main', gameType: 'multi' },
