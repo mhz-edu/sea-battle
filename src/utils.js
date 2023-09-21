@@ -22,8 +22,11 @@ export function markAroundShipCell(x, y, mask) {
       getY < GAMEFIELD_SIZE
     ) {
       try {
+        // eslint-disable-next-line no-param-reassign
         mask[x + dx][y + dy] = false;
-      } catch (error) {}
+      } catch {
+        /* Handling case when marking is out of game field */
+      }
     }
   });
 }
@@ -39,11 +42,11 @@ export function getEmptyCellsInRow(rowArray) {
   let end = 0;
   lengthsArray.forEach((part) => {
     if (part === 0) {
-      start = start + 1;
-      end = end + 1;
+      start += 1;
+      end += 1;
     } else {
       emptyCellsMap.push({
-        start: start,
+        start,
         end: start + part - 1,
         length: part,
       });
@@ -62,11 +65,12 @@ export function templateParser(text) {
   const root = fragment.firstChild;
   const queue = [root];
   while (queue.length > 0) {
-    let currentNode = queue.pop();
+    const currentNode = queue.pop();
     queue.push(...currentNode.children);
     if (customElements.get(currentNode.tagName.toLocaleLowerCase())) {
-      let props = {};
-      props.context = this;
+      let props = {
+        context: this,
+      };
       const subscribeTo = [];
 
       const parsedAttrs = [...currentNode.attributes].reduce((acc, curr) => {
@@ -86,7 +90,7 @@ export function templateParser(text) {
 
       props = { ...props, ...parsedAttrs };
       const newElement = new (customElements.get(
-        currentNode.tagName.toLocaleLowerCase()
+        currentNode.tagName.toLocaleLowerCase(),
       ))(props);
       subscribeTo.forEach((propName) => {
         props.context.subscribe(newElement, propName);

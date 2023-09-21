@@ -45,7 +45,7 @@ export default class Communication {
       this.connection = this.peer.connect(id, { serialization: 'json' });
       this.connection.on('open', () => {
         console.log('connected');
-        //Wait if connection going to be closed
+        // Wait if connection going to be closed
         setTimeout(() => {
           this.connectionCallback();
         }, 500);
@@ -70,6 +70,7 @@ export default class Communication {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   dataHandler(data) {
     console.log('Received data ', data);
     const { type, detail } = data;

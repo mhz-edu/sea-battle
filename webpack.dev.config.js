@@ -1,10 +1,10 @@
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const config = {
-  mode: "development",
-  entry: ["./src/assets/style.scss", "./src/Components.js", "./src/index.js"],
-  devtool: "inline-source-map",
+  mode: 'development',
+  entry: ['./src/assets/style.scss', './src/components', './src/index.js'],
+  devtool: 'inline-source-map',
   devServer: {
     static: false,
   },
@@ -12,13 +12,13 @@ const config = {
     rules: [
       {
         test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "src/assets/index.html",
+      template: 'src/assets/index.html',
     }),
     new MiniCssExtractPlugin(),
   ],

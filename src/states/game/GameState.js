@@ -3,8 +3,8 @@ import EventManager from './EventManager.js';
 import GameLogic from './GameLogic.js';
 import Controller from './Controller.js';
 import Bot from './Bot.js';
-import networkPlayer from './NetworkPlayer.js';
-import { STATE_MACHINE } from '../../index.js';
+import NetworkPlayer from './NetworkPlayer.js';
+import STATE_MACHINE from '../../index.js';
 
 export default class GameState extends BaseState {
   init(params) {
@@ -12,8 +12,8 @@ export default class GameState extends BaseState {
     this.lastStateParams = params;
     this.playerModel = this.lastStateParams.playerModel;
     this.comm = this.lastStateParams.commObj;
-    this._gameStatus = 'Starting the game...';
-    this.createProp('_gameStatus', 'gameStatus');
+    this.gStatus = 'Starting the game...';
+    this.createProp('gStatus', 'gameStatus');
 
     const userName =
       this.lastStateParams.userRole === 'main' ? 'Player 1' : 'Player 2';
@@ -64,7 +64,7 @@ export default class GameState extends BaseState {
 
     const game = this.createGame(
       this.lastStateParams.gameType,
-      this.lastStateParams.userRole
+      this.lastStateParams.userRole,
     );
 
     const logic = new GameLogic(game.firstPlayer, game.secondPlayer, {
@@ -84,9 +84,8 @@ export default class GameState extends BaseState {
   }
 
   createGame(gameType, userRole) {
-    const newPlayer = (playerName) => {
-      return new Controller(playerName, this.playerModel);
-    };
+    const newPlayer = (playerName) =>
+      new Controller(playerName, this.playerModel);
 
     const game = {
       single: {
@@ -98,10 +97,10 @@ export default class GameState extends BaseState {
       multi: {
         main: {
           firstPlayer: newPlayer('Player 1'),
-          secondPlayer: new networkPlayer('Player 2', this.comm),
+          secondPlayer: new NetworkPlayer('Player 2', this.comm),
         },
         second: {
-          firstPlayer: new networkPlayer('Player 1', this.comm),
+          firstPlayer: new NetworkPlayer('Player 1', this.comm),
           secondPlayer: newPlayer('Player 2'),
         },
       },
@@ -110,6 +109,7 @@ export default class GameState extends BaseState {
     return game[gameType][userRole];
   }
 
+  // eslint-disable-next-line class-methods-use-this
   gameoverHandler({ detail: { outcome } }) {
     STATE_MACHINE.change('gameover', outcome);
   }

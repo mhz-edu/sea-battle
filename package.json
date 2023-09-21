@@ -10,7 +10,8 @@
   "scripts": {
     "test": "mocha",
     "build": "webpack --config webpack.prod.config.js",
-    "dev": "webpack serve --config webpack.dev.config.js"
+    "dev": "webpack serve --config webpack.dev.config.js",
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,11 @@
   "devDependencies": {
     "chai": "^4.3.7",
     "css-loader": "^6.7.2",
+    "eslint": "^8.49.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-sonarjs": "^0.21.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.7.0",
     "mocha": "^10.1.0",

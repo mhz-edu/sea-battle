@@ -4,11 +4,10 @@ export default class Controller {
     this.playerName = playerName;
     this.selectedCell = null;
     if (!selectCell) {
-      this.selectCell = () => {
-        return new Promise((resolve) => {
+      this.selectCell = () =>
+        new Promise((resolve) => {
           this.selectedCell = resolve;
         });
-      };
     } else {
       this.selectCell = selectCell;
     }

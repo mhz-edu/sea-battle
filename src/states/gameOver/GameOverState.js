@@ -1,5 +1,5 @@
 import BaseState from '../BaseState.js';
-import { STATE_MACHINE } from '../../index.js';
+import STATE_MACHINE from '../../index.js';
 
 export default class GameOverState extends BaseState {
   init(params) {
@@ -27,6 +27,7 @@ export default class GameOverState extends BaseState {
       `);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   processUserSelect() {
     STATE_MACHINE.change('menu');
   }

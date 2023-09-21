@@ -9,7 +9,7 @@ export default class BaseState extends Subscribable {
     this.templateParser = templateParser.bind(this);
   }
 
-  init() {}
+  // init() {}
 
   enter(params) {
     this.init(params);

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import Subscribable from '../../Subscribable.js';
 import { INITIAL_SHIPS } from '../../config.js';
 
@@ -9,8 +10,10 @@ export default class ShipStorage extends Subscribable {
     this.dragStartHandler = dragStartHandler;
     this.dragEndHandler = dragEndHandler;
     this._ships = [0];
-    for (let key in ships) {
-      this._ships.push(ships[key]);
+    for (const key in ships) {
+      if (ships[key]) {
+        this._ships.push(ships[key]);
+      }
     }
     this.createArrayProp('_ships', 'ships');
     this.createProp('_orientation', 'orientation');
@@ -21,7 +24,7 @@ export default class ShipStorage extends Subscribable {
   }
 
   decrementShipQuantity(shipSize) {
-    this.ships[shipSize] = this.ships[shipSize] - 1;
+    this.ships[shipSize] -= 1;
   }
 
   clearStorage() {
@@ -33,13 +36,16 @@ export default class ShipStorage extends Subscribable {
   }
 
   resetStorage() {
-    for (let key in this.initialShips) {
-      this.ships[key] = this.initialShips[key];
+    for (const key in this.initialShips) {
+      if (this.initialShips[key]) {
+        this.ships[key] = this.initialShips[key];
+      }
     }
     this.orientation = 'h';
   }
 
   toggleOrientation() {
+    // eslint-disable-next-line no-unused-expressions
     this.orientation === 'h'
       ? (this.orientation = 'v')
       : (this.orientation = 'h');

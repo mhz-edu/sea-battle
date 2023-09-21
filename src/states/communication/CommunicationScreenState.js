@@ -1,5 +1,5 @@
 import BaseState from '../BaseState.js';
-import { STATE_MACHINE } from '../../index.js';
+import STATE_MACHINE from '../../index.js';
 import Communication from './Communication.js';
 
 export default class CommunicationScreenState extends BaseState {
@@ -8,8 +8,8 @@ export default class CommunicationScreenState extends BaseState {
     this.stateChangeTimer = null;
     this.lastStateParams = params;
     this.peerId = this.comm.inititialize();
-    this._cs = 'Not connected';
-    this.createProp('_cs', 'connectionStatus');
+    this.cs = 'Not connected';
+    this.createProp('cs', 'connectionStatus');
     const userRoleTemplate = {
       main: `<div class="panel-block">
               <loader-container>
