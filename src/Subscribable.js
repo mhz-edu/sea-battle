@@ -12,10 +12,7 @@ export default class Subscribable {
     this[newPropName] = {};
     this.subs[newPropName] = [];
     Object.defineProperty(this, newPropName, {
-      get: () => {
-        // console.log(`getter${sourcePropName}`);
-        return this[sourcePropName];
-      },
+      get: () => this[sourcePropName],
       set: (val) => {
         // console.log(`setter${sourcePropName}`);
         this[sourcePropName] = val;
@@ -30,10 +27,7 @@ export default class Subscribable {
     this.subs[newPropName] = [];
     this[sourcePropName].forEach((element, index) => {
       Object.defineProperty(this[newPropName], `${index}`, {
-        get: () => {
-          // console.log(`getter${element}`);
-          return this[sourcePropName][index];
-        },
+        get: () => this[sourcePropName][index],
         set: (val) => {
           // console.log(`setter${element}`);
           this[sourcePropName][index] = val;
@@ -57,15 +51,12 @@ export default class Subscribable {
           row.reduce(
             (acc, col, colIndex) => {
               acc[colIndex] = {
-                get: () => {
-                  // console.log(`getter ${colIndex}${rowIndex}`);
-                  return this[sourcePropName][rowIndex][colIndex];
-                },
+                get: () => this[sourcePropName][rowIndex][colIndex],
                 set: (val) => {
                   // console.log(`setter ${colIndex}${rowIndex}`);
                   this[sourcePropName][rowIndex][colIndex] = val;
                   this.subs[newPropName].forEach((sub) =>
-                    sub.notify([val, colIndex, rowIndex])
+                    sub.notify([val, colIndex, rowIndex]),
                   );
                 },
               };
@@ -75,8 +66,8 @@ export default class Subscribable {
               [Symbol.iterator]: {
                 value: () => this[sourcePropName][rowIndex][Symbol.iterator](),
               },
-            }
-          )
+            },
+          ),
         ),
       });
     });

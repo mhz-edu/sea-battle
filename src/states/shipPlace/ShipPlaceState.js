@@ -1,7 +1,8 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import BaseState from '../BaseState.js';
 import ShipStorage from './ShipStorage.js';
 import Model from '../game/Model.js';
-import { STATE_MACHINE } from '../../index.js';
+import STATE_MACHINE from '../../index.js';
 import { GAMEFIELD_SIZE } from '../../config.js';
 
 export default class ShipPlaceState extends BaseState {
@@ -84,6 +85,7 @@ export default class ShipPlaceState extends BaseState {
         });
       }
     } else {
+      // eslint-disable-next-line no-alert
       alert('Some ships are still need to be placed');
     }
   }
@@ -98,7 +100,7 @@ export default class ShipPlaceState extends BaseState {
     this.shipStorage.clearStorage();
   }
 
-  createShipDragImage(shipSize, orientation) {
+  static createShipDragImage(shipSize, orientation) {
     const gameFieldGridGap = 5;
     const cellSize = document
       .querySelector('game-field')
@@ -112,18 +114,18 @@ export default class ShipPlaceState extends BaseState {
     const shipImage = document.createElement('canvas');
     shipImage.setAttribute('style', 'position: absolute; top: -100%;');
     const shipImageCtx = shipImage.getContext('2d');
-    for (let num = 0; num < shipSize; num++) {
+    for (let num = 0; num < shipSize; num += 1) {
       if (orientation === 'h') {
         shipImageCtx.drawImage(
           singleShipCell,
           cellSize * num + gameFieldGridGap * num,
-          0
+          0,
         );
       } else {
         shipImageCtx.drawImage(
           singleShipCell,
           0,
-          cellSize * num + gameFieldGridGap * num
+          cellSize * num + gameFieldGridGap * num,
         );
       }
     }
@@ -132,13 +134,16 @@ export default class ShipPlaceState extends BaseState {
   }
 
   dragStartHandler(event) {
-    this.shipInDrag = parseInt(event.target.dataset.value);
+    this.shipInDrag = parseInt(event.target.dataset.value, 10);
     event.dataTransfer.setDragImage(
-      ...this.createShipDragImage(this.shipInDrag, this.shipStorage.orientation)
+      ...ShipPlaceState.createShipDragImage(
+        this.shipInDrag,
+        this.shipStorage.orientation,
+      ),
     );
     const mask = this.playerModel.getMask(
       this.shipInDrag,
-      this.shipStorage.orientation
+      this.shipStorage.orientation,
     );
     const cells = document.querySelectorAll('game-field my-cell');
     cells.forEach((cell) => {
@@ -149,7 +154,7 @@ export default class ShipPlaceState extends BaseState {
     this.paintCells(cells, mask);
   }
 
-  dragEndHandler(event) {
+  dragEndHandler() {
     const cells = document.querySelectorAll('game-field my-cell');
     cells.forEach((cell) => {
       cell.classList.remove('placement-allowed');
@@ -164,12 +169,14 @@ export default class ShipPlaceState extends BaseState {
 
   dropHandler(event) {
     event.preventDefault();
-    const [x, y] = event.target.dataset.value.split('').map((n) => parseInt(n));
+    const [x, y] = event.target.dataset.value
+      .split('')
+      .map((n) => parseInt(n, 10));
     this.playerModel.placeShip(
       x,
       y,
       this.shipInDrag,
-      this.shipStorage.orientation
+      this.shipStorage.orientation,
     );
     this.shipStorage.decrementShipQuantity(this.shipInDrag);
   }
@@ -177,35 +184,38 @@ export default class ShipPlaceState extends BaseState {
   getNextSiblingsH(element, n) {
     if (n === 0) {
       return [element];
-    } else {
-      if (element.nextSibling) {
-        return [element, ...this.getNextSiblingsH(element.nextSibling, n - 1)];
+    }
+
+    if (element.nextSibling) {
+      return [element, ...this.getNextSiblingsH(element.nextSibling, n - 1)];
+    }
+
+    throw new Error('Not enought siblings');
+  }
+
+  // Implementation for table
+  // eslint-disable-next-line class-methods-use-this
+  getNextSiblingsV(element, n) {
+    if (n === 0) {
+      return [element];
+    }
+
+    const [x, y] = element.dataset.value
+      .split('')
+      .map((val) => parseInt(val, 10));
+    const tableElement = element.parentElement;
+    const siblings = [element];
+    for (let i = 1; i <= n; i += 1) {
+      const nextSiblingV = tableElement.querySelector(
+        `my-cell[data-value="${x}${y + i}"]`,
+      );
+      if (nextSiblingV) {
+        siblings.push(nextSiblingV);
       } else {
         throw new Error('Not enought siblings');
       }
     }
-  }
-
-  //Implementation for table
-  getNextSiblingsV(element, n) {
-    if (n === 0) {
-      return [element];
-    } else {
-      const [x, y] = element.dataset.value.split('').map((n) => parseInt(n));
-      const tableElement = element.parentElement;
-      let siblings = [element];
-      for (let i = 1; i <= n; i++) {
-        const nextSiblingV = tableElement.querySelector(
-          `my-cell[data-value="${x}${y + i}"]`
-        );
-        if (nextSiblingV) {
-          siblings.push(nextSiblingV);
-        } else {
-          throw new Error('Not enought siblings');
-        }
-      }
-      return siblings;
-    }
+    return siblings;
   }
 
   dragProcessHandler(cellCallback) {
@@ -223,7 +233,9 @@ export default class ShipPlaceState extends BaseState {
             cellCallback(cell);
           });
         }
-      } catch {}
+      } catch {
+        /* No cells to place ship */
+      }
     };
   }
 
@@ -233,7 +245,7 @@ export default class ShipPlaceState extends BaseState {
 
   dragLeaveHadler() {
     return this.dragProcessHandler((cell) =>
-      cell.classList.remove('cell-select')
+      cell.classList.remove('cell-select'),
     );
   }
 

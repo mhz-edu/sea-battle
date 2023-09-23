@@ -10,19 +10,22 @@ export default class Bot {
     // Place bot ships
     this.botModel.randomShipsFill({ ...INITIAL_SHIPS });
 
-    this.botController = new Controller('Bot', this.botModel, () => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(this.botShoot(this.botModel));
-        }, BOT_TURN_DURATION);
-      });
-    });
+    this.botController = new Controller(
+      'Bot',
+      this.botModel,
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(Bot.botShoot(this.botModel));
+          }, BOT_TURN_DURATION);
+        }),
+    );
   }
 
-  botShoot(model) {
-    const processEnemyField = (model) => {
-      return [...model.rows('enemy')].flat().reduce((acc, cur, index) => {
-        if (!acc.hasOwnProperty(cur)) {
+  static botShoot(field) {
+    const processEnemyField = (model) =>
+      [...model.rows('enemy')].flat().reduce((acc, cur, index) => {
+        if (!acc[cur]) {
           acc[cur] = [];
         }
         acc[cur].push([
@@ -31,8 +34,7 @@ export default class Bot {
         ]);
         return acc;
       }, {});
-    };
-    const enemyField = processEnemyField(model);
+    const enemyField = processEnemyField(field);
     const potentialTargets = enemyField['?'];
     return potentialTargets[
       Math.floor(Math.random() * potentialTargets.length)

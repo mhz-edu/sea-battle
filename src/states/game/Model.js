@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import Subscribable from '../../Subscribable.js';
 import { getEmptyCellsInRow, markAroundShipCell } from '../../utils.js';
 
@@ -20,9 +21,9 @@ export default class Model extends Subscribable {
     };
 
     this.cols = function* (fieldMark) {
-      for (let colIndex = 0; colIndex < this.gameFieldSize; colIndex++) {
+      for (let colIndex = 0; colIndex < this.gameFieldSize; colIndex += 1) {
         const col = [];
-        for (let rowIndex = 0; rowIndex < this.gameFieldSize; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < this.gameFieldSize; rowIndex += 1) {
           col.push(this[fieldMark][rowIndex][colIndex]);
         }
         yield col;
@@ -37,9 +38,8 @@ export default class Model extends Subscribable {
   checkCell(x, y) {
     if (this.own[y][x] === 'S') {
       return 'H';
-    } else {
-      return 'M';
     }
+    return 'M';
   }
 
   checkField() {
@@ -61,21 +61,23 @@ export default class Model extends Subscribable {
 
   placeShip(x, y, shipSize, shipOrient) {
     let delta = shipSize;
+    let cellX = x;
+    let cellY = y;
     while (delta > 0) {
-      this.updateCell(x, y, 'S', 'own');
-      delta = delta - 1;
+      this.updateCell(cellX, cellY, 'S', 'own');
+      delta -= 1;
       if (shipOrient === 'h') {
-        x = x + 1;
+        cellX += 1;
       } else {
-        y = y + 1;
+        cellY += 1;
       }
     }
     this.resetMask();
   }
 
   updateFieldMask() {
-    for (let row = 0; row < this.gameFieldSize; row++) {
-      for (let col = 0; col < this.gameFieldSize; col++) {
+    for (let row = 0; row < this.gameFieldSize; row += 1) {
+      for (let col = 0; col < this.gameFieldSize; col += 1) {
         if (this.own[row][col] === 'S') {
           markAroundShipCell(row, col, this._mask);
         }
@@ -88,17 +90,17 @@ export default class Model extends Subscribable {
 
     const rowCol = shipOrient === 'h' ? 'rows' : 'cols';
     let lineIndex = 0;
-    for (let line of this[rowCol]('_mask')) {
+    for (const line of this[rowCol]('_mask')) {
       const emptyCellsMap = getEmptyCellsInRow(line);
       emptyCellsMap.forEach(({ start, end, length }) => {
         if (length < shipSize) {
-          for (let i = start; i <= end; i++) {
+          for (let i = start; i <= end; i += 1) {
             const xyPair = rowCol === 'rows' ? [i, lineIndex] : [lineIndex, i];
             this.updateCell(...xyPair, false, '_mask');
           }
         }
       });
-      lineIndex++;
+      lineIndex += 1;
     }
 
     return this._mask;
@@ -118,15 +120,15 @@ export default class Model extends Subscribable {
     const result = [];
 
     orientations.forEach(({ orientation, rowCol }) => {
-      const mask = this.getMask(shipSize, orientation);
+      this.getMask(shipSize, orientation);
       [...this[rowCol]('_mask')].forEach((line, lineIndex) => {
         const emptyCellsMap = getEmptyCellsInRow(line);
-        emptyCellsMap.forEach(({ start, end, length }) => {
+        emptyCellsMap.forEach(({ start, length }) => {
           for (
             let placeStart = start;
             placeStart <= length - shipSize ||
             (length === shipSize && placeStart === start);
-            placeStart++
+            placeStart += 1
           ) {
             if (orientation === 'h') {
               result.push([placeStart, lineIndex, shipSize, orientation]);
@@ -146,42 +148,40 @@ export default class Model extends Subscribable {
    *    - node is array of all posible placements of particular ship on current field
    */
 
-  randomShipsFill(ships) {
+  randomShipsFill(inputShips) {
     const recurse = (ships, steps) => {
       if (Object.values(ships).every((val) => val === 0)) {
         return steps;
-      } else {
-        const biggestShipSize = Math.max(
-          ...Object.entries(ships)
-            .filter(([size, qty]) => qty !== 0)
-            .map(([size, qty]) => size)
-        );
-
-        const places = this.getPossibleplacements(biggestShipSize);
-
-        while (places.length > 0) {
-          const randomPlacementIndex = Math.floor(
-            Math.random() * places.length
-          );
-          const [randomPlacement] = places.splice(randomPlacementIndex, 1);
-          this.placeShip(...randomPlacement);
-
-          const result = recurse(
-            { ...ships, [biggestShipSize]: ships[biggestShipSize] - 1 },
-            [...steps, randomPlacement]
-          );
-          if (result.length >= steps.length + 1) {
-            return result;
-          }
-        }
-
-        steps.pop();
-        this.resetField();
-        steps.forEach((step) => this.placeShip(...step));
-        return steps;
       }
+
+      const biggestShipSize = Math.max(
+        ...Object.entries(ships)
+          .filter(([, qty]) => qty !== 0)
+          .map(([size]) => size),
+      );
+
+      const places = this.getPossibleplacements(biggestShipSize);
+
+      while (places.length > 0) {
+        const randomPlacementIndex = Math.floor(Math.random() * places.length);
+        const [randomPlacement] = places.splice(randomPlacementIndex, 1);
+        this.placeShip(...randomPlacement);
+
+        const result = recurse(
+          { ...ships, [biggestShipSize]: ships[biggestShipSize] - 1 },
+          [...steps, randomPlacement],
+        );
+        if (result.length >= steps.length + 1) {
+          return result;
+        }
+      }
+
+      steps.pop();
+      this.resetField();
+      steps.forEach((step) => this.placeShip(...step));
+      return steps;
     };
 
-    return recurse(ships, []);
+    return recurse(inputShips, []);
   }
 }

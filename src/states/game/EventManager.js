@@ -14,7 +14,7 @@ export default class EventManager {
   }
 
   initialize() {
-    for (let event of this.events) {
+    for (const event of this.events) {
       document.addEventListener(event, this.handler);
     }
   }
@@ -24,7 +24,7 @@ export default class EventManager {
   }
 
   destroy() {
-    for (let event of this.events) {
+    for (const event of this.events) {
       document.removeEventListener(event, this.handler);
     }
   }

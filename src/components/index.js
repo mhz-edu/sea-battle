@@ -1,0 +1,21 @@
+import GameField from './GameField.js';
+import InputAndButton from './InputAndButton.js';
+import LoaderContainer from './LoaderContainer.js';
+import MyButton from './MyButton.js';
+import MyCell from './MyCell.js';
+import MyList from './MyList.js';
+import MyText from './MyText.js';
+import ShipElement from './ShipElement.js';
+import ShipStorage from './ShipStorage.js';
+import ShipStorageCell from './ShipStorageCell.js';
+
+customElements.define('game-field', GameField);
+customElements.define('input-and-button', InputAndButton);
+customElements.define('loader-container', LoaderContainer);
+customElements.define('my-button', MyButton);
+customElements.define('my-cell', MyCell);
+customElements.define('my-list', MyList);
+customElements.define('my-text', MyText);
+customElements.define('ship-element', ShipElement);
+customElements.define('ship-storage', ShipStorage);
+customElements.define('ship-storage-cell', ShipStorageCell);
