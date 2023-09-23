@@ -3,7 +3,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const config = {
   mode: 'production',
-  entry: ['./src/assets/style.scss', './src/Components.js', './src/index.js'],
+  entry: ['./src/assets/style.scss', './src/components', './src/index.js'],
   module: {
     rules: [
       {
